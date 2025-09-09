@@ -25,4 +25,4 @@ jobs:
         with:
           apps: sbt
           jvm: temurin:8
-      - run: sbt +package
+      - run: sbt clean scalafmtSbtCheck scalafmtCheckAll +package
