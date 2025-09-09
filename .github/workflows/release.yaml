@@ -37,7 +37,7 @@ jobs:
         run: |
           curl -u "${SONATYPE_USERNAME}:${SONATYPE_PASSWORD}" \
             -H "Accept: application/json" -sSf \
-            https://s01.oss.sonatype.org/service/local/status >/dev/null
+            https://ossrh-staging-api.central.sonatype.com/service/local/staging/profiles
           sbt -v 'sonatypeProfiles'
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
