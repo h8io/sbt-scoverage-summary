@@ -3,8 +3,9 @@ import sbt.url
 ThisBuild / organization := "io.h8.sbt"
 ThisBuild / organizationName := "H8IO"
 ThisBuild / organizationHomepage := Some(url("https://github.com/h8io/"))
+ThisBuild / homepage := Some(url("https://github.com/h8io/sbt-scoverage-summary"))
 
-ThisBuild / licenses := List("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+ThisBuild / licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
 
 ThisBuild / versionScheme := Some("semver-spec")
 
@@ -39,8 +40,8 @@ val plugin = project
   .settings(
     name := "sbt-scoverage-summary",
     description := "SBT scoverage summary",
-    homepage := Some(url("https://github.com/h8io/sbt-scoverage-summary")),
     sbtPlugin := true,
+    sbtPluginPublishLegacyMavenStyle := false,
     pluginCrossBuild / sbtVersion := {
       scalaBinaryVersion.value match {
         case "2.12" => "1.11.5"
