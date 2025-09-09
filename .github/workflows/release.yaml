@@ -40,7 +40,7 @@ jobs:
         run: |
           curl -u "${SONATYPE_USERNAME}:${SONATYPE_PASSWORD}" \
             -H "Accept: application/json" -sSf \
-            https://ossrh-staging-api.central.sonatype.com/service/local/staging/profiles
+            https://ossrh-staging-api.central.sonatype.com/service/local/staging/profiles >/dev/null
 
       - name: Import PGP key
         shell: bash
