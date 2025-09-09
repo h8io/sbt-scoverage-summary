@@ -42,25 +42,6 @@ jobs:
             -H "Accept: application/json" -sSf \
             https://ossrh-staging-api.central.sonatype.com/service/local/staging/profiles >/dev/null
 
-      - name: Import PGP key
-        shell: bash
-        run: |
-          set -euo pipefail
-          
-          CLEAN="$(printf %s "$PGP_SECRET" | tr -d '\r')"
-          
-          if grep -q "BEGIN PGP PRIVATE KEY BLOCK" <<<"$CLEAN"; then
-            printf '%s' "$CLEAN" > /tmp/private.key
-          else
-            printf '%s' "$CLEAN" | base64 -d > /tmp/private.key
-          fi
-          
-          gpg --batch --import /tmp/private.key
-          
-          gpg --list-secret-keys
-        env:
-          PGP_SECRET: ${{ secrets.PGP_SECRET }}
-
       - name: Release to Maven Central
         env:
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
