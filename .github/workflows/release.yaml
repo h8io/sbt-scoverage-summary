@@ -25,23 +25,14 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-#          ref: master
-          ref: workflow/release
+          ref: master
 
       - name: Check tag
         run: |
           TAG="${GITHUB_REF#refs/tags/}"
-          echo $TAG
-          echo Branches
-          git branch
-          echo Tags
-          git tag
-          git rev-parse workflow/release
-          git rev-parse $TAG
-          if test $(git rev-parse workflow/release) = $(git rev-parse $TAG); then
-            echo "master and $TAG are the same"
-          else
-            echo "master and $TAG are different"
+          if test $(git rev-parse master) != $(git rev-parse $TAG); then
+            echo "master and $TAG should be the same at the moment of the release" >&2
+            exit 1
           fi
           exit 1
 
