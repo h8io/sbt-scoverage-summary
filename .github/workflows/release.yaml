@@ -36,6 +36,8 @@ jobs:
           git branch
           echo Tags
           git tag
+          git rev-parse workflow/release
+          git rev-parse $TAG
           if test $(git rev-parse workflow/release) = $(git rev-parse $TAG); then
             echo "master and $TAG are the same"
           else
