@@ -22,7 +22,7 @@ jobs:
             -H "Accept: application/json" -sSf \
             https://ossrh-staging-api.central.sonatype.com/service/local/staging/profiles >/dev/null
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -30,7 +30,9 @@ jobs:
         run: |
           TAG="${GITHUB_REF#refs/tags/}"
           echo $TAG
+          echo Branches
           git branch
+          echo Tags
           git tag
           if test $(git rev-parse master) = $(git rev-parse $TAG); then
             echo "master and $TAG are the same"
