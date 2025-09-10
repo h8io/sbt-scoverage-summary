@@ -1,32 +1,51 @@
 name: Release
 
 on:
-  release:
-    types: [ published ]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "vMAJOR.MINOR.PATCH (e.g. v1.2.3)"
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  TAG: ${{ github.event.inputs.version }}
 
 jobs:
   release:
-    if: ${{ !github.event.release.draft && !github.event.release.prerelease }}
     runs-on: ubuntu-latest
 
     steps:
-      - run: |
-          echo "Release tag: ${{ github.event.release.tag_name }}"
-          echo "Target commitish: ${{ github.event.release.target_commitish }}"
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - run: |
-          TAG="${{ github.event.release.tag_name }}"
+          echo "Release tag: $TAG"
+          echo "Target commitish: $TAG"
+
           echo "Validating tag: $TAG"
-
           if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "Invalid tag format: '$TAG'. Expected: vMAJOR.MINOR.PATCH (e.g. v1.2.3)" >&2
             exit 1
           fi
 
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.release.tag_name }}
-          fetch-depth: 0
+          git config user.name "h8io[bot]"
+          git config user.email "h8io[bot]@users.noreply.github.com"
+
+          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            echo "Tag already exists locally" >&2
+            exit 1
+          fi
+          if git ls-remote --exit-code --tags origin $TAG >/dev/null 2>&1; then
+            echo "Tag already exists on origin" >&2
+            exit 1
+          fi
+          git tag -a $TAG -m $TAG
+          git describe --tags --exact-match
+          echo "GITHUB_REF=refs/tags/$TAG" >> $GITHUB_ENV
 
       - uses: coursier/setup-action@v1
         with:
@@ -49,3 +68,10 @@ jobs:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
         run: sbt ci-release
+
+      - name: Push tag to origin
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git push origin $TAG
+          gh release create $TAG --title $TAG --generate-notes
