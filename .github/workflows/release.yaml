@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-          path: master
+          ref: master
 
       - name: Check tag
         run: |
@@ -38,7 +38,7 @@ jobs:
           if test $(git rev-parse master) = $(git rev-parse $TAG); then
             echo "master and $TAG are the same"
           else
-            echo "master and $TAG are different"
+            fatal "master and $TAG are different"
           fi
           exit 1
 
