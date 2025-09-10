@@ -1,54 +1,18 @@
 name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: "vMAJOR.MINOR.PATCH (e.g. v1.2.3)"
-        required: true
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
 
 permissions:
   contents: write
-
-env:
-  TAG: ${{ github.event.inputs.version }}
 
 jobs:
   release:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - run: |
-          echo "Release tag: $TAG"
-
-          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Invalid tag format: '$TAG'. Expected: vMAJOR.MINOR.PATCH (e.g. v1.2.3)" >&2
-            exit 1
-          fi
-
-          git config user.name "h8io[bot]"
-          git config user.email "h8io[bot]@users.noreply.github.com"
-
-          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
-            echo "Tag already exists locally" >&2
-            exit 1
-          fi
-          if git ls-remote --exit-code --tags origin $TAG >/dev/null 2>&1; then
-            echo "Tag already exists on origin" >&2
-            exit 1
-          fi
-          git tag -a $TAG -m $TAG
-          git describe --tags --exact-match
-
-      - uses: coursier/setup-action@v1
-        with:
-          apps: sbt
-          jvm: temurin:17
-
       - name: Check Sonatype token
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
@@ -58,20 +22,36 @@ jobs:
             -H "Accept: application/json" -sSf \
             https://ossrh-staging-api.central.sonatype.com/service/local/staging/profiles >/dev/null
 
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          ref: master
+
+      - name: Check tag
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          if test $(git rev-parse master) != $(git rev-parse $TAG); then
+            echo "master and $TAG should be the same at the moment of the release" >&2
+            exit 1
+          fi
+          exit 1
+
+      - uses: coursier/setup-action@v1
+        with:
+          apps: sbt
+          jvm: temurin:17
+
       - name: Release to Maven Central
         env:
-          GITHUB_REF: refs/tags/${{ env.TAG }}
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-        run: |
-          echo GITHUB_REF
-          sbt ci-release
+        run: sbt ci-release
 
-      - name: Push tag to origin
+      - name: Create GitHub release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git push origin $TAG
+          TAG="${GITHUB_REF#refs/tags/}"
           gh release create $TAG --title $TAG --generate-notes
