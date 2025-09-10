@@ -13,14 +13,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: coursier/setup-action@v1
-        with:
-          apps: sbt
-          jvm: temurin:17
+      - name: Check tag
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          if test $(git rev-parse master) = $(git rev-parse $TAG); then
+            echo "master and $tag are the same"
+          else
+            echo "master and $tag are different"
+          fi
+          exit 1
 
       - name: Check Sonatype token
         env:
@@ -30,6 +31,15 @@ jobs:
           curl -u "${SONATYPE_USERNAME}:${SONATYPE_PASSWORD}" \
             -H "Accept: application/json" -sSf \
             https://ossrh-staging-api.central.sonatype.com/service/local/staging/profiles >/dev/null
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: coursier/setup-action@v1
+        with:
+          apps: sbt
+          jvm: temurin:17
 
       - name: Release to Maven Central
         env:
