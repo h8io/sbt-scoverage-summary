@@ -1,17 +1,15 @@
 name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: "vMAJOR.MINOR.PATCH (e.g. v1.2.3)"
-        required: true
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
 
 permissions:
   contents: write
 
 env:
-  TAG: ${{ github.event.inputs.version }}
+  TAG: "${GITHUB_REF#refs/tags/}"
 
 jobs:
   release:
@@ -21,28 +19,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - run: |
-          echo "Release tag: $TAG"
-
-          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Invalid tag format: '$TAG'. Expected: vMAJOR.MINOR.PATCH (e.g. v1.2.3)" >&2
-            exit 1
-          fi
-
-          git config user.name "h8io[bot]"
-          git config user.email "h8io[bot]@users.noreply.github.com"
-
-          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
-            echo "Tag already exists locally" >&2
-            exit 1
-          fi
-          if git ls-remote --exit-code --tags origin $TAG >/dev/null 2>&1; then
-            echo "Tag already exists on origin" >&2
-            exit 1
-          fi
-          git tag -a $TAG -m $TAG
-          git describe --tags --exact-match
 
       - uses: coursier/setup-action@v1
         with:
@@ -60,18 +36,15 @@ jobs:
 
       - name: Release to Maven Central
         env:
-          GITHUB_REF: refs/tags/${{ env.TAG }}
+          GITHUB_REF: refs/tags/${{ github.event.inputs.version }}
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
         run: |
-          echo GITHUB_REF
-          sbt ci-release
+          echo $GITHUB_REF
+          # sbt ci-release
 
-      - name: Push tag to origin
+      - run: gh release create $TAG --title $TAG --generate-notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git push origin $TAG
-          gh release create $TAG --title $TAG --generate-notes
