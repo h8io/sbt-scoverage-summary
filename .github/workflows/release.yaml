@@ -24,9 +24,7 @@ jobs:
 
       - run: |
           echo "Release tag: $TAG"
-          echo "Target commitish: $TAG"
 
-          echo "Validating tag: $TAG"
           if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "Invalid tag format: '$TAG'. Expected: vMAJOR.MINOR.PATCH (e.g. v1.2.3)" >&2
             exit 1
@@ -44,8 +42,8 @@ jobs:
             exit 1
           fi
           git tag -a $TAG -m $TAG
-          git describe --tags --exact-match
           echo "GITHUB_REF=refs/tags/$TAG" >> $GITHUB_ENV
+          git describe --tags --exact-match
 
       - uses: coursier/setup-action@v1
         with:
