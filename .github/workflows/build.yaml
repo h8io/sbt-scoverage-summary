@@ -16,8 +16,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    env:
-      CI: true
     steps:
       - uses: actions/checkout@v5
       - uses: coursier/cache-action@v6
