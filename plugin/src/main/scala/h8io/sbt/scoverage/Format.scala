@@ -1,14 +1,15 @@
 package h8io.sbt.scoverage
 
 trait Format {
-  def render(projects: Seq[ProjectSummary], total: Metrics): String
+  def render(projects: Seq[ProjectSummary], total: Metrics, lowThreshold: Float, highThreshold: Float): String
 
   def fileSuffix: String
 }
 
 object Format {
   case object GitHubFlavoredMarkdown extends Format {
-    def render(projects: Seq[ProjectSummary], total: Metrics): String = {
+    def render(projects: Seq[ProjectSummary], total: Metrics, lowThreshold: Float, highThreshold: Float): String = {
+      val valueRender = render(lowThreshold, highThreshold) _
       <table>
         <thead>
           <tr>
@@ -30,12 +31,12 @@ object Format {
             <td align="right">{m.invokedStatements}</td>
             <td align="right">{m.ignoredStatements}</td>
             <td align="right">{
-            if (m.statements == 0) "" else f"${m.invokedStatements.toDouble / m.statements * 100}%2.02f%%"
+            if (m.statements == 0) "" else valueRender(m.invokedStatements, m.statements)
           }</td>
             <td align="right">{m.branches}</td>
             <td align="right">{m.invokedBranches}</td>
             <td align="right">{
-            if (m.branches == 0) "" else f"${m.invokedBranches.toDouble / m.branches * 100}%2.02f%%"
+            if (m.branches == 0) "" else valueRender(m.invokedBranches, m.branches)
           }</td>
           </tr>
         }
@@ -47,18 +48,23 @@ object Format {
             <td>{total.statements}</td>
             <td>{total.invokedStatements}</td>
             <td>{total.ignoredStatements}</td>
-            <td>{
-        if (total.statements == 0) "" else f"${total.invokedStatements.toDouble / total.statements * 100}%2.02f%%"
-      }</td>
+            <td>{if (total.statements == 0) "" else valueRender(total.invokedStatements, total.statements)}</td>
             <td>{total.branches}</td>
             <td>{total.invokedBranches}</td>
-            <td>{
-        if (total.branches == 0) "" else f"${total.invokedBranches.toDouble / total.branches * 100}%2.02f%%"
-      }</td>
+            <td>{if (total.branches == 0) "" else valueRender(total.invokedBranches, total.branches)}</td>
             </tr>
           </tfoot>
       </table>
     }.toString()
+
+    private def render(lowThreshold: Float, highThreshold: Float)(invoked: Int, total: Int): String = {
+      val rate = invoked.toFloat / total * 100
+      val color =
+        if (rate <= lowThreshold) "#f00"
+        else if (rate < highThreshold) "#ff0"
+        else "#0f0"
+      f"$$\\color{$color}$rate%2.02f\\%%$$"
+    }
 
     override def fileSuffix: String = "-gfm.html"
   }

@@ -10,6 +10,8 @@ object ScoverageSummaryPlugin extends AutoPlugin {
   object autoImport {
     val coverageSummary = taskKey[Unit]("Generate scoverage summary")
     val coverageSummaryFormat = settingKey[Set[Format]]("Summary format")
+    val coverageLowThreshold = settingKey[Float]("Coverage low threshold (red)")
+    val coverageHighThreshold = settingKey[Float]("Coverage high threshold (green)")
   }
   import autoImport.*
 
@@ -20,6 +22,8 @@ object ScoverageSummaryPlugin extends AutoPlugin {
   override def projectSettings: Seq[Def.Setting[?]] = Seq(
     coverageSummary / aggregate := false,
     coverageSummaryFormat := Set(Format.GitHubFlavoredMarkdown),
+    coverageLowThreshold := 50,
+    coverageHighThreshold := 75,
     coverageSummary := {
       coverageReport.all(ScopeFilter(inAggregates(ThisProject, includeRoot = true))).value
       val projects = ScoverageProjectSummaryPlugin.summary
@@ -30,7 +34,12 @@ object ScoverageSummaryPlugin extends AutoPlugin {
         case Some(total) =>
           for {
             format <- coverageSummaryFormat.value
-            summary = format.render(projects.sortBy(_.name), total)
+            summary = format.render(
+              projects.sortBy(_.name),
+              total,
+              coverageLowThreshold.value,
+              coverageHighThreshold.value
+            )
           } IO.write(crossTarget.value / "scoverage-summary" / ("summary" + format.fileSuffix), summary)
         case None =>
           streams.value.log.warn(
