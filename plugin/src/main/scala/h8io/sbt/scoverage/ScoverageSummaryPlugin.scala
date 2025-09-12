@@ -25,7 +25,7 @@ object ScoverageSummaryPlugin extends AutoPlugin {
     coverageLowThreshold := 50,
     coverageHighThreshold := 75,
     coverageSummary := {
-      coverageReport.all(ScopeFilter(inAggregates(ThisProject, includeRoot = true))).value
+      val _ = coverageReport.all(ScopeFilter(inAggregates(ThisProject, includeRoot = true))).value
       val projects = ScoverageProjectSummaryPlugin.summary
         .all(ScopeFilter(inAggregates(ThisProject, includeRoot = true)))
         .value
