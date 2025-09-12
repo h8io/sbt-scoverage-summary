@@ -36,7 +36,7 @@ scmInfo := Some(
 )
 
 val plugin = project
-  .enablePlugins(SbtPlugin)
+  .enablePlugins(SbtPlugin, ScoverageSummaryPlugin)
   .settings(
     name := "sbt-scoverage-summary",
     description := "SBT scoverage summary",
