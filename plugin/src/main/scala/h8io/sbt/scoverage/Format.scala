@@ -5,7 +5,7 @@ trait Format {
 
   def render(projects: Seq[ProjectSummary], total: Metrics, lowThreshold: Float, highThreshold: Float): String
 
-  def fileSuffix: String
+  def filename: String
 }
 
 object Format {
@@ -70,6 +70,6 @@ object Format {
       f"$$\\color{$color}$rate%2.02f\\%%$$"
     }
 
-    override val fileSuffix: String = ".gfm.md"
+    override val filename: String = "gfm.md"
   }
 }
