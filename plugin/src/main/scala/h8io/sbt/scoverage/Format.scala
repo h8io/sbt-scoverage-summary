@@ -1,13 +1,17 @@
 package h8io.sbt.scoverage
 
 trait Format {
+  def name: String
+
   def render(projects: Seq[ProjectSummary], total: Metrics, lowThreshold: Float, highThreshold: Float): String
 
-  def fileName: String
+  def fileSuffix: String
 }
 
 object Format {
   case object GitHubFlavoredMarkdown extends Format {
+    val name = "GitHub flavored markdown"
+
     def render(projects: Seq[ProjectSummary], total: Metrics, lowThreshold: Float, highThreshold: Float): String = {
       val valueRender = render(lowThreshold, highThreshold) _
       <table>
@@ -66,6 +70,6 @@ object Format {
       f"$$\\color{$color}$rate%2.02f\\%%$$"
     }
 
-    override def fileName: String = "gfm.md"
+    override val fileSuffix: String = ".gfm.md"
   }
 }
