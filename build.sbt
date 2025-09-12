@@ -1,5 +1,3 @@
-import sbt.url
-
 ThisBuild / organization := "io.h8.sbt"
 ThisBuild / organizationName := "H8IO"
 ThisBuild / organizationHomepage := Some(url("https://github.com/h8io/"))

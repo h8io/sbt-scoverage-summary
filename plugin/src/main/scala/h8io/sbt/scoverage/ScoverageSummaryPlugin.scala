@@ -34,13 +34,16 @@ object ScoverageSummaryPlugin extends AutoPlugin {
         case Some(total) =>
           for {
             format <- coverageSummaryFormat.value
-            summary = format.render(
-              projects.sortBy(_.name),
-              total,
-              coverageLowThreshold.value,
-              coverageHighThreshold.value
-            )
-          } IO.write(crossTarget.value / "scoverage-summary" / ("summary" + format.fileSuffix), summary)
+            summary =
+              s"Scala ${scalaBinaryVersion.value}${if (sbtPlugin.value) " SBT " + (pluginCrossBuild / sbtBinaryVersion).value
+                else ""}\n" +
+                format.render(
+                  projects.sortBy(_.name),
+                  total,
+                  coverageLowThreshold.value,
+                  coverageHighThreshold.value
+                ) + "\n"
+          } IO.write(target.value / "scoverage-summary" / format.fileName, summary)
         case None =>
           streams.value.log.warn(
             s"[sbt-scoverage-summary] No coverage data found for project '" +
