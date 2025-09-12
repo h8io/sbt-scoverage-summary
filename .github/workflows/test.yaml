@@ -1,0 +1,16 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+    secrets: inherit
+    uses: h8io/.github/.github/workflows/test.yaml@master
+    with:
+      java-version: '8'
