@@ -26,12 +26,14 @@ ThisBuild / developers := List(
   )
 )
 
-scmInfo := Some(
+ThisBuild / scmInfo := Some(
   ScmInfo(
     url("https://github.com/h8io/sbt-scoverage-summary"),
     "scm:git@github.com:h8io/sbt-scoverage-summary.git"
   )
 )
+
+ThisBuild / dynverSonatypeSnapshots := true
 
 val plugin = project
   .enablePlugins(SbtPlugin, ScoverageSummaryPlugin)
