@@ -3,7 +3,7 @@ package h8io.sbt.scoverage
 trait Format {
   def render(projects: Seq[ProjectSummary], total: Metrics, lowThreshold: Float, highThreshold: Float): String
 
-  def fileSuffix: String
+  def fileName: String
 }
 
 object Format {
@@ -54,8 +54,8 @@ object Format {
             <td>{if (total.branches == 0) "" else valueRender(total.invokedBranches, total.branches)}</td>
             </tr>
           </tfoot>
-      </table>
-    }.toString()
+      </table>.toString()
+    }
 
     private def render(lowThreshold: Float, highThreshold: Float)(invoked: Int, total: Int): String = {
       val rate = invoked.toFloat / total * 100
@@ -66,6 +66,6 @@ object Format {
       f"$$\\color{$color}$rate%2.02f\\%%$$"
     }
 
-    override def fileSuffix: String = "-gfm.html"
+    override def fileName: String = "gfm.md"
   }
 }

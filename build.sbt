@@ -1,5 +1,3 @@
-import sbt.url
-
 ThisBuild / organization := "io.h8.sbt"
 ThisBuild / organizationName := "H8IO"
 ThisBuild / organizationHomepage := Some(url("https://github.com/h8io/"))
@@ -36,7 +34,7 @@ scmInfo := Some(
 )
 
 val plugin = project
-  .enablePlugins(SbtPlugin)
+  .enablePlugins(SbtPlugin, ScoverageSummaryPlugin)
   .settings(
     name := "sbt-scoverage-summary",
     description := "SBT scoverage summary",
