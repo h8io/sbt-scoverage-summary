@@ -53,14 +53,10 @@ object Format {
             <td align="right">{m.statements}</td>
             <td align="right">{m.invokedStatements}</td>
             <td align="right">{m.ignoredStatements}</td>
-            <td align="right">{
-            if (m.statements == 0) "" else valueRender(m.invokedStatements, m.statements)
-          }</td>
+            <td align="right">{valueRender(m.invokedStatements, m.statements)}</td>
             <td align="right">{m.branches}</td>
             <td align="right">{m.invokedBranches}</td>
-            <td align="right">{
-            if (m.branches == 0) "" else valueRender(m.invokedBranches, m.branches)
-          }</td>
+            <td align="right">{valueRender(m.invokedBranches, m.branches)}</td>
           </tr>
         }
       }
@@ -71,10 +67,10 @@ object Format {
             <td>{total.statements}</td>
             <td>{total.invokedStatements}</td>
             <td>{total.ignoredStatements}</td>
-            <td>{if (total.statements == 0) "" else valueRender(total.invokedStatements, total.statements)}</td>
+            <td>{valueRender(total.invokedStatements, total.statements)}</td>
             <td>{total.branches}</td>
             <td>{total.invokedBranches}</td>
-            <td>{if (total.branches == 0) "" else valueRender(total.invokedBranches, total.branches)}</td>
+            <td>{valueRender(total.invokedBranches, total.branches)}</td>
             </tr>
           </tfoot>
       </table>.toString()
@@ -105,14 +101,16 @@ object Format {
       </tbody>
     }
 
-    private def render(lowThreshold: Float, highThreshold: Float)(invoked: Int, total: Int): String = {
-      val rate = invoked.toFloat / total * 100
-      val color =
-        if (rate <= lowThreshold) "#f00"
-        else if (rate < highThreshold) "#ff0"
-        else "#0f0"
-      f"$$\\color{$color}$rate%2.02f\\%%$$"
-    }
+    private def render(lowThreshold: Float, highThreshold: Float)(invoked: Int, total: Int): String =
+      if (total == 0) "$\\textemdash$"
+      else {
+        val rate = invoked.toFloat / total * 100
+        val color =
+          if (rate <= lowThreshold) "#f00"
+          else if (rate < highThreshold) "#ff0"
+          else "#0f0"
+        f"$$\\color{$color}$rate%2.02f\\%%$$"
+      }
 
     override val filename: String = "gfm.md"
   }
