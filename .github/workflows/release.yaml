@@ -11,7 +11,6 @@ permissions:
 jobs:
   release:
     secrets: inherit
-    uses: h8io/.github/.github/workflows/release.yaml@master
+    uses: h8io/gha/workflows/release.yaml@v2
     with:
       java-version: 8
-
