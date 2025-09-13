@@ -55,19 +55,7 @@ A full example uf usage could be found
 
 ```yaml
 - name: Publish scoverage summary
-  if: ${{ github.event.pull_request }}
-  env:
+  uses: h8io/gha/actions/publish-scoverage-summary@v2
+  with:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  run: |
-    set -euo pipefail
-    shopt -s globstar
-    if [[ ${{ inputs.is-plugin }} == "true" ]]; then
-      TARGET=plugin/target
-    else
-      TARGET=target
-    fi
-    SUMMARY_FILE=scoverage-summary.md
-    echo "# ${{ github.event.pull_request.head.sha }}" > $SUMMARY_FILE
-    cat $(ls ./$TARGET/**/scoverage-summary/gfm.md | sort) >> $SUMMARY_FILE
-    gh pr comment "${{ github.event.pull_request.number }}" --body-file $SUMMARY_FILE
 ```
