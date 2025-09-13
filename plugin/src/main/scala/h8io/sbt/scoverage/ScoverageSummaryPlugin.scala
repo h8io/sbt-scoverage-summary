@@ -43,7 +43,7 @@ object ScoverageSummaryPlugin extends AutoPlugin {
             ) _
             filename = crossTarget.value / "scoverage-summary" / format.filename
             summary =
-              "## " + thisProjectRef.value.project + "\n### Scala " + scalaBinaryVersion.value +
+              "## " + name.value + " (" + thisProjectRef.value.project + ")\n### Scala " + scalaBinaryVersion.value +
                 (if (sbtPlugin.value) ", SBT " + (pluginCrossBuild / sbtBinaryVersion).value else "") + "\n" +
                 render(projects.sortBy(_.name), total) + "\n"
           } {
