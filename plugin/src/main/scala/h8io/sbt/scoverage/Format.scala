@@ -5,7 +5,7 @@ import scala.xml.Elem
 trait Format {
   def name: String
 
-  final def render(layout: Layout, lowThreshold: Float, highThreshold: Float)(
+  final private[scoverage] def render(layout: Layout, lowThreshold: Float, highThreshold: Float)(
       projects: Seq[ProjectSummary],
       total: Metrics
   ): String = {
@@ -18,11 +18,11 @@ trait Format {
     }
   }
 
-  protected def render(lowThreshold: Float, highThreshold: Float, projects: Seq[ProjectSummary], total: Metrics): String
+  def render(lowThreshold: Float, highThreshold: Float, projects: Seq[ProjectSummary], total: Metrics): String
 
-  protected def render(lowThreshold: Float, highThreshold: Float, project: ProjectSummary): String
+  def render(lowThreshold: Float, highThreshold: Float, project: ProjectSummary): String
 
-  protected def render(lowThreshold: Float, highThreshold: Float, total: Metrics): String
+  def render(lowThreshold: Float, highThreshold: Float, total: Metrics): String
 
   def filename: String
 }
@@ -31,12 +31,7 @@ object Format {
   case object GitHubFlavoredMarkdown extends Format {
     val name = "GitHub flavored markdown"
 
-    protected def render(
-        lowThreshold: Float,
-        highThreshold: Float,
-        projects: Seq[ProjectSummary],
-        total: Metrics
-    ): String = {
+    def render(lowThreshold: Float, highThreshold: Float, projects: Seq[ProjectSummary], total: Metrics): String = {
       val valueRender = render(lowThreshold, highThreshold) _
       <table>
         <thead>
@@ -85,7 +80,7 @@ object Format {
       </table>.toString()
     }
 
-    protected def render(lowThreshold: Float, highThreshold: Float, project: ProjectSummary): String =
+    def render(lowThreshold: Float, highThreshold: Float, project: ProjectSummary): String =
       <table>
         <thead>
           <tr><th rowspan="2">Project</th><th>Name</th><td>{project.name}</td></tr>
@@ -94,7 +89,7 @@ object Format {
         {renderMetricsBody(lowThreshold, highThreshold, project.metrics)}
       </table>.toString()
 
-    protected def render(lowThreshold: Float, highThreshold: Float, metrics: Metrics): String =
+    def render(lowThreshold: Float, highThreshold: Float, metrics: Metrics): String =
       <table>{renderMetricsBody(lowThreshold, highThreshold, metrics)}</table>.toString()
 
     private def renderMetricsBody(lowThreshold: Float, highThreshold: Float, metrics: Metrics): Elem = {

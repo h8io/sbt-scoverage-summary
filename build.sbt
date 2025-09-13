@@ -44,13 +44,15 @@ val plugin = project
     sbtPluginPublishLegacyMavenStyle := false,
     pluginCrossBuild / sbtVersion := {
       scalaBinaryVersion.value match {
-        case "2.12" => "1.11.5"
+        case "2.12" => "1.11.0"
         case _ => "2.0.0-RC4"
       }
     },
     addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.3.1"),
     libraryDependencies ++= Seq(
       "org.scoverage" %% "scalac-scoverage-serializer" % "2.3.0",
-      "org.scala-sbt" % "sbt" % (pluginCrossBuild / sbtVersion).value
+      "org.scala-sbt" % "sbt" % (pluginCrossBuild / sbtVersion).value,
+      "org.scalatest" %% "scalatest" % "3.2.19" % Test,
+      "org.scalamock" %% "scalamock" % "7.5.0" % Test
     )
   )
