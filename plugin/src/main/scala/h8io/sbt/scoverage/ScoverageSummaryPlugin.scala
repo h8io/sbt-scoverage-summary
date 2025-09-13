@@ -32,7 +32,7 @@ object ScoverageSummaryPlugin extends AutoPlugin {
         .all(ScopeFilter(inAggregates(ThisProject, includeRoot = true)))
         .value
         .flatten
-      projects.iterator.map(_.metrics).reduceOption(_ + _) match {
+      total(projects) match {
         case Some(total) =>
           for {
             format <- coverageSummaryFormat.value
@@ -43,7 +43,7 @@ object ScoverageSummaryPlugin extends AutoPlugin {
             ) _
             filename = crossTarget.value / "scoverage-summary" / format.filename
             summary =
-              "# Scala " + scalaBinaryVersion.value +
+              "## Scala " + scalaBinaryVersion.value +
                 (if (sbtPlugin.value) ", SBT " + (pluginCrossBuild / sbtBinaryVersion).value else "") + "\n" +
                 render(projects.sortBy(_.name), total) + "\n"
           } {
@@ -58,4 +58,8 @@ object ScoverageSummaryPlugin extends AutoPlugin {
       }
     }
   )
+
+  // Visible for testing
+  private[scoverage] def total(projects: Seq[ProjectSummary]): Option[Metrics] =
+    projects.iterator.map(_.metrics).reduceOption(_ + _)
 }

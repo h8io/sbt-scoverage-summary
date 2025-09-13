@@ -15,7 +15,7 @@ class FormatTest extends AnyFlatSpec with Matchers with MockFactory {
   )
   private val metrics = projects.iterator.map(_.metrics).reduce(_ + _)
 
-  classOf[Format].getName should s"invoke the correct method for a single project when layout is ${Layout.Auto}" in {
+  "render" should s"invoke the correct method for a single project when layout is ${Layout.Auto}" in {
     val format = mock[Format]
     val result = "single project summary with auto layout"
     (format.render(_: Float, _: Float, _: ProjectSummary)).expects(lowThreshold, highThreshold, project).returns(result)
