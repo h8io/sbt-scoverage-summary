@@ -10,8 +10,9 @@ object ScoverageSummaryPlugin extends AutoPlugin {
   object autoImport {
     val coverageSummary = taskKey[Unit]("Generate scoverage summary")
     val coverageSummaryFormat = settingKey[Set[Format]]("Summary format")
-    val coverageLowThreshold = settingKey[Float]("Coverage low threshold (red)")
-    val coverageHighThreshold = settingKey[Float]("Coverage high threshold (green)")
+    val coverageSummaryLowThreshold = settingKey[Float]("Coverage low threshold (red)")
+    val coverageSummaryHighThreshold = settingKey[Float]("Coverage high threshold (green)")
+    val coverageSummaryLayout = settingKey[Layout]("Summary layout")
   }
   import autoImport.*
 
@@ -22,8 +23,9 @@ object ScoverageSummaryPlugin extends AutoPlugin {
   override def projectSettings: Seq[Def.Setting[?]] = Seq(
     coverageSummary / aggregate := false,
     coverageSummaryFormat := Set(Format.GitHubFlavoredMarkdown),
-    coverageLowThreshold := 50,
-    coverageHighThreshold := 75,
+    coverageSummaryLowThreshold := 50,
+    coverageSummaryHighThreshold := 75,
+    coverageSummaryLayout := Layout.Auto,
     coverageSummary := {
       val _ = coverageReport.all(ScopeFilter(inAggregates(ThisProject, includeRoot = true))).value
       val projects = ScoverageProjectSummaryPlugin.summary
@@ -34,16 +36,16 @@ object ScoverageSummaryPlugin extends AutoPlugin {
         case Some(total) =>
           for {
             format <- coverageSummaryFormat.value
+            render = format.render(
+              coverageSummaryLayout.value,
+              coverageSummaryLowThreshold.value,
+              coverageSummaryHighThreshold.value
+            ) _
             filename = crossTarget.value / "scoverage-summary" / format.filename
             summary =
               "# Scala " + scalaBinaryVersion.value +
                 (if (sbtPlugin.value) ", SBT " + (pluginCrossBuild / sbtBinaryVersion).value else "") + "\n" +
-                format.render(
-                  projects.sortBy(_.name),
-                  total,
-                  coverageLowThreshold.value,
-                  coverageHighThreshold.value
-                ) + "\n"
+                render(projects.sortBy(_.name), total) + "\n"
           } {
             IO.write(filename, summary)
             streams.value.log.info(s"Scoverage summary report (${format.name}) written to $filename")
