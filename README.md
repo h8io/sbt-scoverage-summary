@@ -41,8 +41,8 @@ In the root project enable `ScoverageSummaryPlugin`
 
 ### .github/workflow/test.yaml
 
-A full example uf usage could be found
-[here](https://github.com/h8io/.github/blob/master/.github/workflows/test.yaml).
+A full example of usage could be found
+[here](https://github.com/h8io/gha/blob/master/.github/workflows/test.yaml).
 
 #### Add the step for summary creation:
 
