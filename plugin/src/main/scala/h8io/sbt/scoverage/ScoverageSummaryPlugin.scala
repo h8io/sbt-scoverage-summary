@@ -45,7 +45,7 @@ object ScoverageSummaryPlugin extends AutoPlugin {
             summary =
               "## " + name.value + " (" + thisProjectRef.value.project + ")\n### Scala " + scalaBinaryVersion.value +
                 (if (sbtPlugin.value) ", SBT " + (pluginCrossBuild / sbtBinaryVersion).value else "") + "\n" +
-                render(projects.sortBy(_.name), total) + "\n"
+                render(projects.sortBy(_.name), total) + "\n\n"
           } {
             IO.write(filename, summary)
             streams.value.log.info(s"Scoverage summary report (${format.name}) written to $filename")
