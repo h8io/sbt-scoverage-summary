@@ -79,8 +79,8 @@ object Format {
     def render(lowThreshold: Float, highThreshold: Float, project: ProjectSummary): String =
       <table>
         <thead>
-          <tr><th rowspan="2">Project</th><th>Name</th><td>{project.name}</td></tr>
-          <tr><th>ID</th><td>{project.id}</td></tr>
+          <tr><th rowspan="2">Project</th><th>Name</th><td align="center">{project.name}</td></tr>
+          <tr><th>ID</th><td align="center">{project.id}</td></tr>
         </thead>
         {renderMetricsBody(lowThreshold, highThreshold, project.metrics)}
       </table>.toString()
