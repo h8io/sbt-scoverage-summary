@@ -64,13 +64,13 @@ object Format {
         <tfoot align="right">
           <tr>
             <td colspan="2"></td>
-            <td>{total.statements}</td>
-            <td>{total.invokedStatements}</td>
-            <td>{total.ignoredStatements}</td>
-            <td>{valueRender(total.invokedStatements, total.statements)}</td>
-            <td>{total.branches}</td>
-            <td>{total.invokedBranches}</td>
-            <td>{valueRender(total.invokedBranches, total.branches)}</td>
+            <td align="right">{total.statements}</td>
+            <td align="right">{total.invokedStatements}</td>
+            <td align="right">{total.ignoredStatements}</td>
+            <td align="right">{valueRender(total.invokedStatements, total.statements)}</td>
+            <td align="right">{total.branches}</td>
+            <td align="right">{total.invokedBranches}</td>
+            <td align="right">{valueRender(total.invokedBranches, total.branches)}</td>
             </tr>
           </tfoot>
       </table>.toString()
@@ -91,13 +91,13 @@ object Format {
     private def renderMetricsBody(lowThreshold: Float, highThreshold: Float, metrics: Metrics): Elem = {
       val valueRender = render(lowThreshold, highThreshold) _
       <tbody>
-        <tr><th rowspan="4">Statements</th><th>Total</th><td>{metrics.statements}</td></tr>
-        <tr><th>Invoked</th><td>{metrics.invokedStatements}</td></tr>
-        <tr><th>Ignored</th><td>{metrics.ignoredStatements}</td></tr>
-        <tr><th>Rate</th><td>{valueRender(metrics.invokedStatements, metrics.statements)}</td></tr>
-        <tr><th rowspan="3">Branches</th><th>Total</th><td>{metrics.branches}</td></tr>
-        <tr><th>Invoked</th><td>{metrics.invokedBranches}</td></tr>
-        <tr><th>Rate</th><td>{valueRender(metrics.invokedBranches, metrics.branches)}</td></tr>
+        <tr><th rowspan="4">Statements</th><th>Total</th><td align="right">{metrics.statements}</td></tr>
+        <tr><th>Invoked</th><td align="right">{metrics.invokedStatements}</td></tr>
+        <tr><th>Ignored</th><td align="right">{metrics.ignoredStatements}</td></tr>
+        <tr><th>Rate</th><td align="right">{valueRender(metrics.invokedStatements, metrics.statements)}</td></tr>
+        <tr><th rowspan="3">Branches</th><th>Total</th><td align="right">{metrics.branches}</td></tr>
+        <tr><th>Invoked</th><td align="right">{metrics.invokedBranches}</td></tr>
+        <tr><th>Rate</th><td align="right">{valueRender(metrics.invokedBranches, metrics.branches)}</td></tr>
       </tbody>
     }
 
