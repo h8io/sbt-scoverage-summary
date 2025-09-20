@@ -5,6 +5,8 @@ Summary report can be published as a GitHub comment in a pull request.
 This project uses it itself, and could be used as a reference for usage
 (as well as other H8IO projects).
 
+⚠️ SBT 1.8.0 or newer required.
+
 ## Settings
 
 * coverageSummaryFormat - type is
@@ -34,6 +36,7 @@ Add
 ```sbt
 addSbtPlugin("io.h8.sbt" % "sbt-scoverage-summary" % "x.x.x")
 ```
+[![GitHub release](https://img.shields.io/github/v/release/h8io/sbt-scoverage-summary)](https://github.com/h8io/sbt-scoverage-summary/releases/latest)
 
 ### build.sbt
 
