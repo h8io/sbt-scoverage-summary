@@ -36,6 +36,7 @@ Add
 ```sbt
 addSbtPlugin("io.h8.sbt" % "sbt-scoverage-summary" % "x.x.x")
 ```
+[![GitHub release](https://img.shields.io/github/v/release/h8io/sbt-scoverage-summary)](https://github.com/h8io/sbt-scoverage-summary/releases/latest)
 
 ### build.sbt
 
