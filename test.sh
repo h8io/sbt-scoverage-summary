@@ -3,11 +3,9 @@
 set -euxo pipefail
 
 if [[ -n "${CI:-}" ]]; then
-  COVERAGE_AGGREGATE=
-  COVERAGE_SUMMARY=+coverageSummary
+  COVERAGE_REPORT=coverageSummary
 else
-  COVERAGE_AGGREGATE=+coverageAggregate
-  COVERAGE_SUMMARY=
+  COVERAGE_REPORT=coverageAggregate
 fi
 
-sbt clean scalafmtSbtCheck scalafmtCheckAll +coverage +test $COVERAGE_AGGREGATE $COVERAGE_SUMMARY
+sbt scalafmtSbtCheck scalafmtCheckAll +clean +coverage +test +$COVERAGE_REPORT
