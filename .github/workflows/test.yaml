@@ -11,6 +11,6 @@ on:
 jobs:
   test:
     secrets: inherit
-    uses: h8io/gha/.github/workflows/test.yaml@v2
+    uses: h8io/gha/.github/workflows/test.yaml@v3
     with:
       java-version: 8
