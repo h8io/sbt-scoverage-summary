@@ -3,7 +3,6 @@ package h8io.sbt.scoverage
 import sbt.*
 import sbt.Keys.*
 import sbt.io.IO
-import scoverage.ScoverageKeys.coverageReport
 import scoverage.ScoverageSbtPlugin
 
 object ScoverageSummaryPlugin extends AutoPlugin {
@@ -27,7 +26,6 @@ object ScoverageSummaryPlugin extends AutoPlugin {
     coverageSummaryHighThreshold := 75,
     coverageSummaryLayout := Layout.Auto,
     coverageSummary := {
-      val _ = coverageReport.all(ScopeFilter(inAggregates(ThisProject, includeRoot = true))).value
       val projects = ScoverageProjectSummaryPlugin.summary
         .all(ScopeFilter(inAggregates(ThisProject, includeRoot = true)))
         .value
