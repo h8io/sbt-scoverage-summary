@@ -7,7 +7,7 @@ ThisBuild / licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses
 
 ThisBuild / versionScheme := Some("semver-spec")
 
-ThisBuild / scalaVersion := "2.12.21"
+ThisBuild / scalaVersion := "2.12.20"
 // ThisBuild / crossScalaVersions += "3.7.2"
 
 ThisBuild / scalacOptions ++= Seq("--deprecation", "--feature", "--unchecked", "-Xlint:_", "-Xfatal-warnings")
@@ -35,8 +35,10 @@ ThisBuild / scmInfo := Some(
 
 ThisBuild / dynverSonatypeSnapshots := true
 
+val ScoverageVersion = "2.5.1"
+
 val plugin = project
-  .enablePlugins(SbtPlugin /*, ScoverageSummaryPlugin*/ )
+  .enablePlugins(SbtPlugin, ScoverageSummaryPlugin)
   .settings(
     name := "sbt-scoverage-summary",
     description := "SBT scoverage summary",
@@ -48,10 +50,10 @@ val plugin = project
         case _ => "2.0.0-RC4"
       }
     },
+    coverageScalacPluginVersion := ScoverageVersion,
     addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.4.2"),
     libraryDependencies ++= Seq(
-      ("org.scoverage" %% "scalac-scoverage-plugin" % "2.5.1").cross(CrossVersion.full),
-      "org.scoverage" %% "scalac-scoverage-serializer" % "2.5.1",
+      "org.scoverage" %% "scalac-scoverage-serializer" % ScoverageVersion,
       "org.scala-sbt" % "sbt" % (pluginCrossBuild / sbtVersion).value,
       "org.scalatest" %% "scalatest" % "3.2.19" % Test,
       "org.scalamock" %% "scalamock" % "7.5.2" % Test
