@@ -51,9 +51,13 @@ val plugin = project
       }
     },
     coverageScalacPluginVersion := ScoverageVersion,
-    addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.4.2"),
     libraryDependencies ++= Seq(
       "org.scoverage" %% "scalac-scoverage-serializer" % ScoverageVersion,
+      Defaults.sbtPluginExtra(
+        "org.scoverage" % "sbt-scoverage" % "2.4.2",
+        (pluginCrossBuild / sbtBinaryVersion).value,
+        scalaBinaryVersion.value
+      ),
       "org.scala-sbt" % "sbt" % (pluginCrossBuild / sbtVersion).value,
       "org.scalatest" %% "scalatest" % "3.2.19" % Test,
       "org.scalamock" %% "scalamock" % "7.5.2" % Test
