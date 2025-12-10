@@ -50,7 +50,7 @@ val plugin = project
     },
     addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.4.2"),
     libraryDependencies ++= Seq(
-      "org.scoverage" %% "scalac-scoverage-serializer" % "2.4.2",
+      "org.scoverage" %% "scalac-scoverage-serializer" % "2.5.1",
       "org.scala-sbt" % "sbt" % (pluginCrossBuild / sbtVersion).value,
       "org.scalatest" %% "scalatest" % "3.2.19" % Test,
       "org.scalamock" %% "scalamock" % "7.5.2" % Test
