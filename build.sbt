@@ -54,7 +54,7 @@ val plugin = project
     libraryDependencies ++= Seq(
       "org.scoverage" %% "scalac-scoverage-serializer" % ScoverageVersion,
       Defaults.sbtPluginExtra(
-        "org.scoverage" % "sbt-scoverage" % "2.4.2",
+        "org.scoverage" % "sbt-scoverage" % "2.4.3",
         (pluginCrossBuild / sbtBinaryVersion).value,
         scalaBinaryVersion.value
       ),
