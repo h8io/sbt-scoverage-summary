@@ -7,7 +7,7 @@ ThisBuild / licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses
 
 ThisBuild / versionScheme := Some("semver-spec")
 
-ThisBuild / scalaVersion := "2.12.20"
+ThisBuild / scalaVersion := "2.12.21"
 // ThisBuild / crossScalaVersions += "3.7.2"
 
 ThisBuild / scalacOptions ++= Seq("--deprecation", "--feature", "--unchecked", "-Xlint:_", "-Xfatal-warnings")
@@ -35,8 +35,6 @@ ThisBuild / scmInfo := Some(
 
 ThisBuild / dynverSonatypeSnapshots := true
 
-val ScoverageVersion = "2.5.1"
-
 val plugin = project
   .enablePlugins(SbtPlugin, ScoverageSummaryPlugin)
   .settings(
@@ -50,9 +48,8 @@ val plugin = project
         case _ => "2.0.0-RC4"
       }
     },
-    coverageScalacPluginVersion := ScoverageVersion,
     libraryDependencies ++= Seq(
-      "org.scoverage" %% "scalac-scoverage-serializer" % ScoverageVersion,
+      "org.scoverage" %% "scalac-scoverage-serializer" % "2.5.1",
       Defaults.sbtPluginExtra(
         "org.scoverage" % "sbt-scoverage" % "2.4.3",
         (pluginCrossBuild / sbtBinaryVersion).value,
