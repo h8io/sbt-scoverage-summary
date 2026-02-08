@@ -57,6 +57,6 @@ val plugin = project
       ),
       "org.scala-sbt" % "sbt" % (pluginCrossBuild / sbtVersion).value,
       "org.scalatest" %% "scalatest" % "3.2.19" % Test,
-      "org.scalamock" %% "scalamock" % "7.5.3" % Test
+      "org.scalamock" %% "scalamock" % "7.5.5" % Test
     )
   )
