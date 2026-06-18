@@ -32,7 +32,7 @@ object Format {
     val name = "GitHub flavored markdown"
 
     def render(lowThreshold: Float, highThreshold: Float, projects: Seq[ProjectSummary], total: Metrics): String = {
-      val valueRender = render(lowThreshold, highThreshold) _
+      val valueRender = render(lowThreshold, highThreshold)(_, _)
       <table>
         <thead>
           <tr>
@@ -89,7 +89,7 @@ object Format {
       <table>{renderMetricsBody(lowThreshold, highThreshold, metrics)}</table>.toString()
 
     private def renderMetricsBody(lowThreshold: Float, highThreshold: Float, metrics: Metrics): Elem = {
-      val valueRender = render(lowThreshold, highThreshold) _
+      val valueRender = render(lowThreshold, highThreshold)(_, _)
       <tbody>
         <tr><th rowspan="4">Statements</th><th>Total</th><td align="right">{metrics.statements}</td></tr>
         <tr><th>Invoked</th><td align="right">{metrics.invokedStatements}</td></tr>

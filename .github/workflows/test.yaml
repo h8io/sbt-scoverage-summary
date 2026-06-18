@@ -13,4 +13,4 @@ jobs:
     secrets: inherit
     uses: h8io/gha/.github/workflows/test.yaml@v3
     with:
-      java-version: 8
+      java-version: 17

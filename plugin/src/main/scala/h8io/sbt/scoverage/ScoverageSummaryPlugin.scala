@@ -7,7 +7,7 @@ import scoverage.ScoverageSbtPlugin
 
 object ScoverageSummaryPlugin extends AutoPlugin {
   object autoImport {
-    val coverageSummary = taskKey[Unit]("Generate scoverage summary")
+    @transient val coverageSummary = taskKey[Unit]("Generate scoverage summary")
     val coverageSummaryFormat = settingKey[Set[Format]]("Summary format")
     val coverageSummaryLowThreshold = settingKey[Float]("Coverage low threshold (red)")
     val coverageSummaryHighThreshold = settingKey[Float]("Coverage high threshold (green)")
@@ -38,7 +38,7 @@ object ScoverageSummaryPlugin extends AutoPlugin {
               coverageSummaryLayout.value,
               coverageSummaryLowThreshold.value,
               coverageSummaryHighThreshold.value
-            ) _
+            )(_, _)
             filename = crossTarget.value / "scoverage-summary" / format.filename
             summary =
               "## " + name.value + " (" + thisProjectRef.value.project + ")\n### Scala " + scalaBinaryVersion.value +
