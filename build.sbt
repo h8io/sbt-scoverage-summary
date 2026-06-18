@@ -8,7 +8,7 @@ ThisBuild / licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses
 ThisBuild / versionScheme := Some("semver-spec")
 
 ThisBuild / scalaVersion := "2.12.21"
-ThisBuild / crossScalaVersions := Seq("2.12.21", "3.8.4")
+ThisBuild / crossScalaVersions += "3.8.4"
 
 ThisBuild / scalacOptions ++= Seq("-deprecation", "-feature", "-unchecked")
 ThisBuild / scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
