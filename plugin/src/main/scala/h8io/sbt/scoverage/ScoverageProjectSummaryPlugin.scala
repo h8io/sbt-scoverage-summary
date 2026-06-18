@@ -8,7 +8,7 @@ import scoverage.reporter.IOUtils
 import scoverage.serialize.Serializer
 
 object ScoverageProjectSummaryPlugin extends AutoPlugin {
-  private[scoverage] val summary = taskKey[Option[ProjectSummary]]("summary")
+  @transient private[scoverage] val summary = taskKey[Option[ProjectSummary]]("summary")
 
   override def trigger: PluginTrigger = allRequirements
 

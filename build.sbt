@@ -8,12 +8,14 @@ ThisBuild / licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses
 ThisBuild / versionScheme := Some("semver-spec")
 
 ThisBuild / scalaVersion := "2.12.21"
-// ThisBuild / crossScalaVersions += "3.7.2"
+ThisBuild / crossScalaVersions := Seq("2.12.21", "3.8.4")
 
-ThisBuild / scalacOptions ++= Seq("--deprecation", "--feature", "--unchecked", "-Xlint:_", "-Xfatal-warnings")
+ThisBuild / scalacOptions ++= Seq("-deprecation", "-feature", "-unchecked")
 ThisBuild / scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-  case Some((2, 12)) => Seq("-Ywarn-unused", "-Ywarn-dead-code", "-Ywarn-unused:-nowarn", "-Xsource:3")
-  case _ => ???
+  case Some((2, 12)) =>
+    Seq("-Xfatal-warnings", "-Xlint:_", "-Ywarn-unused", "-Ywarn-dead-code", "-Ywarn-unused:-nowarn", "-Xsource:3")
+  case Some((3, _)) => Seq("-Werror", "-Wunused:all", "-Wvalue-discard")
+  case _ => Nil
 })
 ThisBuild / javacOptions ++= Seq("-target", "8")
 
@@ -45,7 +47,7 @@ val plugin = project
     pluginCrossBuild / sbtVersion := {
       scalaBinaryVersion.value match {
         case "2.12" => "1.8.0"
-        case _ => "2.0.0-RC4"
+        case _ => "2.0.0"
       }
     },
     libraryDependencies ++= Seq(
@@ -55,8 +57,10 @@ val plugin = project
         (pluginCrossBuild / sbtBinaryVersion).value,
         scalaBinaryVersion.value
       ),
-      "org.scala-sbt" % "sbt" % (pluginCrossBuild / sbtVersion).value,
-      "org.scalatest" %% "scalatest" % "3.2.20" % Test,
-      "org.scalamock" %% "scalamock" % "7.5.5" % Test
-    )
+      "org.scalatest" %% "scalatest" % "3.2.20" % Test
+    ),
+    libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((3, _)) => Seq("org.scala-lang.modules" %% "scala-xml" % "2.4.0")
+      case _ => Nil
+    })
   )
