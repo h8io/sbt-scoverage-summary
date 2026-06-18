@@ -57,7 +57,8 @@ val plugin = project
         (pluginCrossBuild / sbtBinaryVersion).value,
         scalaBinaryVersion.value
       ),
-      "org.scalatest" %% "scalatest" % "3.2.20" % Test
+      "org.scalatest" %% "scalatest" % "3.2.20" % Test,
+      "org.scalamock" %% "scalamock" % "7.5.5" % Test
     ),
     libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((3, _)) => Seq("org.scala-lang.modules" %% "scala-xml" % "2.4.0")

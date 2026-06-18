@@ -1,9 +1,10 @@
 package h8io.sbt.scoverage
 
+import org.scalamock.scalatest.MockFactory
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
-class FormatTest extends AnyFlatSpec with Matchers {
+class FormatTest extends AnyFlatSpec with Matchers with MockFactory {
   private val lowThreshold: Float = 0.3f
   private val highThreshold: Float = 0.8f
 
@@ -14,58 +15,60 @@ class FormatTest extends AnyFlatSpec with Matchers {
   )
   private val metrics = projects.iterator.map(_.metrics).reduce(_ + _)
 
-  private sealed trait Call
-  private case class MultiCall(projects: Seq[ProjectSummary], total: Metrics) extends Call
-  private case class SingleCall(project: ProjectSummary) extends Call
-  private case class TotalCall(metrics: Metrics) extends Call
-
-  private def trackingFormat(): (Format, () => Option[Call]) = {
-    var lastCall: Option[Call] = None
-    val format = new Format {
-      def render(low: Float, high: Float, ps: Seq[ProjectSummary], total: Metrics): String = {
-        lastCall = Some(MultiCall(ps, total)); "multi"
-      }
-      def render(low: Float, high: Float, p: ProjectSummary): String = { lastCall = Some(SingleCall(p)); "single" }
-      def render(low: Float, high: Float, m: Metrics): String = { lastCall = Some(TotalCall(m)); "total" }
-      val name: String = "test"
-      val filename: String = "test.md"
-    }
-    (format, () => lastCall)
+  "render" should s"invoke the correct method for a single project when layout is ${Layout.Auto}" in {
+    val format = mock[Format]
+    val result = "single project summary with auto layout"
+    (format.render(_: Float, _: Float, _: ProjectSummary)).expects(lowThreshold, highThreshold, project).returns(result)
+    format.render(Layout.Auto, lowThreshold, highThreshold)(project :: Nil, project.metrics) shouldEqual result
   }
 
-  "render" should s"invoke single-project render for a single project when layout is ${Layout.Auto}" in {
-    val (format, getCall) = trackingFormat()
-    format.render(Layout.Auto, lowThreshold, highThreshold)(project :: Nil, project.metrics) shouldEqual "single"
-    getCall() shouldEqual Some(SingleCall(project))
+  it should s"invoke the correct method for multiple projects when layout is ${Layout.Auto}" in {
+    val format = mock[Format]
+    val result = "multiproject summary with auto layout"
+    (format
+      .render(_: Float, _: Float, _: Seq[ProjectSummary], _: Metrics))
+      .expects(lowThreshold, highThreshold, projects, metrics)
+      .returns(result)
+    format.render(Layout.Auto, lowThreshold, highThreshold)(projects, metrics) shouldEqual result
   }
 
-  it should s"invoke multi-project render for multiple projects when layout is ${Layout.Auto}" in {
-    val (format, getCall) = trackingFormat()
-    format.render(Layout.Auto, lowThreshold, highThreshold)(projects, metrics) shouldEqual "multi"
-    getCall() shouldEqual Some(MultiCall(projects, metrics))
+  it should s"invoke the correct method for a single project when layout is ${Layout.Multi}" in {
+    val format = mock[Format]
+    val result = s"single project summary with layout ${Layout.Multi}"
+    (format
+      .render(_: Float, _: Float, _: Seq[ProjectSummary], _: Metrics))
+      .expects(lowThreshold, highThreshold, project :: Nil, project.metrics)
+      .returns(result)
+    format.render(Layout.Multi, lowThreshold, highThreshold)(project :: Nil, project.metrics) shouldEqual result
   }
 
-  it should s"invoke multi-project render for a single project when layout is ${Layout.Multi}" in {
-    val (format, getCall) = trackingFormat()
-    format.render(Layout.Multi, lowThreshold, highThreshold)(project :: Nil, project.metrics) shouldEqual "multi"
-    getCall() shouldEqual Some(MultiCall(project :: Nil, project.metrics))
+  it should s"invoke the correct method for multiple projects when layout is ${Layout.Multi}" in {
+    val format = mock[Format]
+    val result = s"multiproject summary with layout ${Layout.Multi}"
+    (format
+      .render(_: Float, _: Float, _: Seq[ProjectSummary], _: Metrics))
+      .expects(lowThreshold, highThreshold, projects, metrics)
+      .returns(result)
+    format.render(Layout.Multi, lowThreshold, highThreshold)(projects, metrics) shouldEqual result
   }
 
-  it should s"invoke multi-project render for multiple projects when layout is ${Layout.Multi}" in {
-    val (format, getCall) = trackingFormat()
-    format.render(Layout.Multi, lowThreshold, highThreshold)(projects, metrics) shouldEqual "multi"
-    getCall() shouldEqual Some(MultiCall(projects, metrics))
+  it should s"invoke the correct method for a single project when layout is ${Layout.Total}" in {
+    val format = mock[Format]
+    val result = s"single project summary with layout ${Layout.Total}"
+    (format
+      .render(_: Float, _: Float, _: Metrics))
+      .expects(lowThreshold, highThreshold, project.metrics)
+      .returns(result)
+    format.render(Layout.Total, lowThreshold, highThreshold)(project :: Nil, project.metrics) shouldEqual result
   }
 
-  it should s"invoke total render for a single project when layout is ${Layout.Total}" in {
-    val (format, getCall) = trackingFormat()
-    format.render(Layout.Total, lowThreshold, highThreshold)(project :: Nil, project.metrics) shouldEqual "total"
-    getCall() shouldEqual Some(TotalCall(project.metrics))
-  }
-
-  it should s"invoke total render for multiple projects when layout is ${Layout.Total}" in {
-    val (format, getCall) = trackingFormat()
-    format.render(Layout.Total, lowThreshold, highThreshold)(projects, metrics) shouldEqual "total"
-    getCall() shouldEqual Some(TotalCall(metrics))
+  it should s"invoke the correct method for multiple projects when layout is ${Layout.Total}" in {
+    val format = mock[Format]
+    val result = s"multiproject summary with layout ${Layout.Total}"
+    (format
+      .render(_: Float, _: Float, _: Metrics))
+      .expects(lowThreshold, highThreshold, metrics)
+      .returns(result)
+    format.render(Layout.Total, lowThreshold, highThreshold)(projects, metrics) shouldEqual result
   }
 }
