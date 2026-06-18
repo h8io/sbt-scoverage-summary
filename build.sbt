@@ -17,7 +17,7 @@ ThisBuild / scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) m
   case Some((3, _)) => Seq("-Werror", "-Wunused:all", "-Wvalue-discard")
   case _ => Nil
 })
-ThisBuild / javacOptions ++= Seq("-target", "8")
+ThisBuild / javacOptions ++= Seq("--release", "11")
 
 ThisBuild / developers := List(
   Developer(
