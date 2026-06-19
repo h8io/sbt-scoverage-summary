@@ -37,7 +37,8 @@ ThisBuild / scmInfo := Some(
 
 ThisBuild / dynverSonatypeSnapshots := true
 
-val plugin = project
+val core = project
+  .in(file("plugin"))
   .enablePlugins(SbtPlugin, ScoverageSummaryPlugin)
   .settings(
     name := "sbt-scoverage-summary",
