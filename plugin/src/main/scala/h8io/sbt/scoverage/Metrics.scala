@@ -9,21 +9,23 @@ final case class Metrics(
     branches: Int,
     invokedBranches: Int
 ) {
-  def +(that: Metrics): Metrics = Metrics(
-    statements + that.statements,
-    invokedStatements + that.invokedStatements,
-    ignoredStatements + that.ignoredStatements,
-    branches + that.branches,
-    invokedBranches + that.invokedBranches
-  )
+  def +(that: Metrics): Metrics =
+    Metrics(
+      statements + that.statements,
+      invokedStatements + that.invokedStatements,
+      ignoredStatements + that.ignoredStatements,
+      branches + that.branches,
+      invokedBranches + that.invokedBranches
+    )
 }
 
 object Metrics {
-  def apply(coverage: Coverage): Metrics = Metrics(
-    coverage.statementCount,
-    coverage.invokedStatementCount,
-    coverage.ignoredStatementCount,
-    coverage.branchCount,
-    coverage.invokedBranchesCount
-  )
+  def apply(coverage: Coverage): Metrics =
+    Metrics(
+      coverage.statementCount,
+      coverage.invokedStatementCount,
+      coverage.ignoredStatementCount,
+      coverage.branchCount,
+      coverage.invokedBranchesCount
+    )
 }
