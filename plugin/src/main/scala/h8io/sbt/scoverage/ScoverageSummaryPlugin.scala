@@ -19,43 +19,44 @@ object ScoverageSummaryPlugin extends AutoPlugin {
 
   override def requires: Plugins = ScoverageSbtPlugin
 
-  override def projectSettings: Seq[Def.Setting[?]] = Seq(
-    coverageSummary / aggregate := false,
-    coverageSummaryFormat := Set(Format.GitHubFlavoredMarkdown),
-    coverageSummaryLowThreshold := 50,
-    coverageSummaryHighThreshold := 75,
-    coverageSummaryLayout := Layout.Auto,
-    coverageSummary := {
-      val projects = ScoverageProjectSummaryPlugin.summary
-        .all(ScopeFilter(inAggregates(ThisProject, includeRoot = true)))
-        .value
-        .flatten
-      total(projects) match {
-        case Some(total) =>
-          for {
-            format <- coverageSummaryFormat.value
-            render = format.render(
-              coverageSummaryLayout.value,
-              coverageSummaryLowThreshold.value,
-              coverageSummaryHighThreshold.value
-            )(_, _)
-            filename = crossTarget.value / "scoverage-summary" / format.filename
-            summary =
-              "## " + name.value + " (" + thisProjectRef.value.project + ")\n### Scala " + scalaBinaryVersion.value +
-                (if (sbtPlugin.value) ", SBT " + (pluginCrossBuild / sbtBinaryVersion).value else "") + "\n" +
-                render(projects.sortBy(_.name), total) + "\n\n"
-          } {
-            IO.write(filename, summary)
-            streams.value.log.info(s"Scoverage summary report (${format.name}) written to $filename")
-          }
-        case None =>
-          streams.value.log.warn(
-            s"[sbt-scoverage-summary] No coverage data found for project '" +
-              thisProject.value.id + "' or any of its aggregated modules"
-          )
+  override def projectSettings: Seq[Def.Setting[?]] =
+    Seq(
+      coverageSummary / aggregate := false,
+      coverageSummaryFormat := Set(Format.GitHubFlavoredMarkdown),
+      coverageSummaryLowThreshold := 50,
+      coverageSummaryHighThreshold := 75,
+      coverageSummaryLayout := Layout.Auto,
+      coverageSummary := {
+        val projects = ScoverageProjectSummaryPlugin.summary
+          .all(ScopeFilter(inAggregates(ThisProject, includeRoot = true)))
+          .value
+          .flatten
+        total(projects) match {
+          case Some(total) =>
+            for {
+              format <- coverageSummaryFormat.value
+              render = format.render(
+                coverageSummaryLayout.value,
+                coverageSummaryLowThreshold.value,
+                coverageSummaryHighThreshold.value
+              )(_, _)
+              filename = crossTarget.value / "scoverage-summary" / format.filename
+              summary =
+                "## " + name.value + " (" + thisProjectRef.value.project + ")\n### Scala " + scalaBinaryVersion.value +
+                  (if (sbtPlugin.value) ", SBT " + (pluginCrossBuild / sbtBinaryVersion).value else "") + "\n" +
+                  render(projects.sortBy(_.name), total) + "\n\n"
+            } {
+              IO.write(filename, summary)
+              streams.value.log.info(s"Scoverage summary report (${format.name}) written to $filename")
+            }
+          case None =>
+            streams.value.log.warn(
+              s"[sbt-scoverage-summary] No coverage data found for project '" +
+                thisProject.value.id + "' or any of its aggregated modules"
+            )
+        }
       }
-    }
-  )
+    )
 
   // Visible for testing
   private[scoverage] def total(projects: Seq[ProjectSummary]): Option[Metrics] =

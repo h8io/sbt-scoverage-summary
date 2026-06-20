@@ -5,10 +5,10 @@ import scala.xml.Elem
 trait Format {
   def name: String
 
-  final private[scoverage] def render(layout: Layout, lowThreshold: Float, highThreshold: Float)(
+  private[scoverage] final def render(layout: Layout, lowThreshold: Float, highThreshold: Float)(
       projects: Seq[ProjectSummary],
       total: Metrics
-  ): String = {
+  ): String =
     layout match {
       case Layout.Auto =>
         if (projects.length == 1) render(lowThreshold, highThreshold, projects.head)
@@ -16,7 +16,6 @@ trait Format {
       case Layout.Multi => render(lowThreshold, highThreshold, projects, total)
       case Layout.Total => render(lowThreshold, highThreshold, total)
     }
-  }
 
   def render(lowThreshold: Float, highThreshold: Float, projects: Seq[ProjectSummary], total: Metrics): String
 
