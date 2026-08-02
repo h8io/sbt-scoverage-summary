@@ -1,6 +1,13 @@
 dynverSonatypeSnapshots := true
 dynverSeparator := "-"
 
+ThisBuild / coverageSummaryStmtLowThreshold := 90
+ThisBuild / coverageSummaryStmtHighThreshold := 95
+ThisBuild / coverageSummaryBranchLowThreshold := 90
+ThisBuild / coverageSummaryBranchHighThreshold := 95
+ThisBuild / coverageSummaryStmtMinimum := Some(90)
+ThisBuild / coverageSummaryBranchMinimum := Some(90)
+
 val plugin = projectMatrix.in(file("plugin"))
   .jvmPlatform(scalaVersions = Seq("3.8.4", "2.12.21"))
   .enablePlugins(SbtPlugin, ScoverageSummaryPlugin)
