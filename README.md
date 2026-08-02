@@ -20,13 +20,19 @@ This project uses it itself, and could be used as a reference for usage
       another one for multimodule projects.
     * Multi - always show multimodule project layout.
     * Total - show only total summary value.
-* coverageSummaryLowThreshold - type is Float, this value is used
-  to color in red when coverage rate is lesser than this value.
-* coverageSummaryHighThreshold - type is Float, this value is used
-  to color in green when coverage rate is greater or equal than this value.
+* coverageSummaryStmtLowThreshold, coverageSummaryBranchLowThreshold - type is Float,
+  this value is used to color in red when the corresponding coverage rate
+  is lesser than this value.
+* coverageSummaryStmtHighThreshold, coverageSummaryBranchHighThreshold - type is Float,
+  this value is used to color in green when the corresponding coverage rate
+  is greater or equal than this value.
 
-  Both thresholds must satisfy `0 <= low <= high <= 100`, otherwise `coverageSummary` fails.
-  Equal thresholds are allowed and produce a two-color scale with no intermediate color.
+  Statement and branch coverage are separate metrics whose rates are not correlated,
+  so each of them has its own pair of thresholds.
+
+  Within a metric the thresholds must satisfy `0 <= low <= high <= 100`,
+  otherwise `coverageSummary` fails. Equal thresholds are allowed
+  and produce a two-color scale with no intermediate color.
 
 ## Usage
 

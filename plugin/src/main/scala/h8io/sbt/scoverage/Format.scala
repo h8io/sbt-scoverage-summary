@@ -5,23 +5,23 @@ import scala.xml.Elem
 trait Format {
   def name: String
 
-  private[scoverage] final def render(layout: Layout, lowThreshold: Float, highThreshold: Float)(
+  private[scoverage] final def render(layout: Layout, statements: Thresholds, branches: Thresholds)(
       projects: Seq[ProjectSummary],
       total: Metrics
   ): String =
     layout match {
       case Layout.Auto =>
-        if (projects.length == 1) render(lowThreshold, highThreshold, projects.head)
-        else render(lowThreshold, highThreshold, projects, total)
-      case Layout.Multi => render(lowThreshold, highThreshold, projects, total)
-      case Layout.Total => render(lowThreshold, highThreshold, total)
+        if (projects.length == 1) render(statements, branches, projects.head)
+        else render(statements, branches, projects, total)
+      case Layout.Multi => render(statements, branches, projects, total)
+      case Layout.Total => render(statements, branches, total)
     }
 
-  def render(lowThreshold: Float, highThreshold: Float, projects: Seq[ProjectSummary], total: Metrics): String
+  def render(statements: Thresholds, branches: Thresholds, projects: Seq[ProjectSummary], total: Metrics): String
 
-  def render(lowThreshold: Float, highThreshold: Float, project: ProjectSummary): String
+  def render(statements: Thresholds, branches: Thresholds, project: ProjectSummary): String
 
-  def render(lowThreshold: Float, highThreshold: Float, total: Metrics): String
+  def render(statements: Thresholds, branches: Thresholds, total: Metrics): String
 
   def filename: String
 }
@@ -30,8 +30,9 @@ object Format {
   case object GitHubFlavoredMarkdown extends Format {
     val name = "GitHub flavored markdown"
 
-    def render(lowThreshold: Float, highThreshold: Float, projects: Seq[ProjectSummary], total: Metrics): String = {
-      val valueRender = render(lowThreshold, highThreshold)(_, _)
+    def render(statements: Thresholds, branches: Thresholds, projects: Seq[ProjectSummary], total: Metrics): String = {
+      val statementRender = render(statements)(_, _)
+      val branchRender = render(branches)(_, _)
       <table>
         <thead>
           <tr>
@@ -52,10 +53,10 @@ object Format {
             <td align="right">{m.statements}</td>
             <td align="right">{m.invokedStatements}</td>
             <td align="right">{m.ignoredStatements}</td>
-            <td align="right">{valueRender(m.invokedStatements, m.statements)}</td>
+            <td align="right">{statementRender(m.invokedStatements, m.statements)}</td>
             <td align="right">{m.branches}</td>
             <td align="right">{m.invokedBranches}</td>
-            <td align="right">{valueRender(m.invokedBranches, m.branches)}</td>
+            <td align="right">{branchRender(m.invokedBranches, m.branches)}</td>
           </tr>
         }
       }
@@ -66,47 +67,48 @@ object Format {
             <td align="right">{total.statements}</td>
             <td align="right">{total.invokedStatements}</td>
             <td align="right">{total.ignoredStatements}</td>
-            <td align="right">{valueRender(total.invokedStatements, total.statements)}</td>
+            <td align="right">{statementRender(total.invokedStatements, total.statements)}</td>
             <td align="right">{total.branches}</td>
             <td align="right">{total.invokedBranches}</td>
-            <td align="right">{valueRender(total.invokedBranches, total.branches)}</td>
+            <td align="right">{branchRender(total.invokedBranches, total.branches)}</td>
             </tr>
           </tfoot>
       </table>.toString()
     }
 
-    def render(lowThreshold: Float, highThreshold: Float, project: ProjectSummary): String =
+    def render(statements: Thresholds, branches: Thresholds, project: ProjectSummary): String =
       <table>
         <thead>
           <tr><th rowspan="2">Project</th><th>Name</th><td align="center">{project.name}</td></tr>
           <tr><th>ID</th><td align="center">{project.id}</td></tr>
         </thead>
-        {renderMetricsBody(lowThreshold, highThreshold, project.metrics)}
+        {renderMetricsBody(statements, branches, project.metrics)}
       </table>.toString()
 
-    def render(lowThreshold: Float, highThreshold: Float, metrics: Metrics): String =
-      <table>{renderMetricsBody(lowThreshold, highThreshold, metrics)}</table>.toString()
+    def render(statements: Thresholds, branches: Thresholds, metrics: Metrics): String =
+      <table>{renderMetricsBody(statements, branches, metrics)}</table>.toString()
 
-    private def renderMetricsBody(lowThreshold: Float, highThreshold: Float, metrics: Metrics): Elem = {
-      val valueRender = render(lowThreshold, highThreshold)(_, _)
+    private def renderMetricsBody(statements: Thresholds, branches: Thresholds, metrics: Metrics): Elem = {
+      val statementRender = render(statements)(_, _)
+      val branchRender = render(branches)(_, _)
       <tbody>
         <tr><th rowspan="4">Statements</th><th>Total</th><td align="right">{metrics.statements}</td></tr>
         <tr><th>Invoked</th><td align="right">{metrics.invokedStatements}</td></tr>
         <tr><th>Ignored</th><td align="right">{metrics.ignoredStatements}</td></tr>
-        <tr><th>Rate</th><td align="right">{valueRender(metrics.invokedStatements, metrics.statements)}</td></tr>
+        <tr><th>Rate</th><td align="right">{statementRender(metrics.invokedStatements, metrics.statements)}</td></tr>
         <tr><th rowspan="3">Branches</th><th>Total</th><td align="right">{metrics.branches}</td></tr>
         <tr><th>Invoked</th><td align="right">{metrics.invokedBranches}</td></tr>
-        <tr><th>Rate</th><td align="right">{valueRender(metrics.invokedBranches, metrics.branches)}</td></tr>
+        <tr><th>Rate</th><td align="right">{branchRender(metrics.invokedBranches, metrics.branches)}</td></tr>
       </tbody>
     }
 
-    private def render(lowThreshold: Float, highThreshold: Float)(invoked: Int, total: Int): String =
+    private def render(thresholds: Thresholds)(invoked: Int, total: Int): String =
       if (total == 0) "$\\textemdash$"
       else {
         val rate = invoked.toFloat / total * 100
         val color =
-          if (rate < lowThreshold) "#f00"
-          else if (rate < highThreshold) "#ff0"
+          if (rate < thresholds.low) "#f00"
+          else if (rate < thresholds.high) "#ff0"
           else "#0f0"
         f"$$\\color{$color}$rate%2.02f\\%%$$"
       }
