@@ -25,6 +25,9 @@ This project uses it itself, and could be used as a reference for usage
 * coverageSummaryHighThreshold - type is Float, this value is used
   to color in green when coverage rate is greater or equal than this value.
 
+  Both thresholds must satisfy `0 <= low <= high <= 100`, otherwise `coverageSummary` fails.
+  Equal thresholds are allowed and produce a two-color scale with no intermediate color.
+
 ## Usage
 
 ### plugins.sbt
