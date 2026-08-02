@@ -78,4 +78,22 @@ class FormatTest extends AnyFlatSpec with Matchers with MockFactory {
     rendered should include("\\color{#0f0}50.00")
     rendered should include("\\color{#ff0}50.00")
   }
+
+  it should "render the single project layout" in {
+    val thresholds = Thresholds(40, 60)
+    val single =
+      ProjectSummary("the-id", "the-name", Summary(Metrics(10, 5, 2, 10, 5), thresholds, thresholds, noMinimum))
+    val rendered = Format.GitHubFlavoredMarkdown.render(single)
+    rendered should (include("the-id") and include("the-name"))
+    rendered should include(">2</td>") // ignored statements
+    rendered should include("\\color{#ff0}50.00")
+  }
+
+  it should "render a dash for a metric which has nothing to cover" in {
+    val thresholds = Thresholds(40, 60)
+    val rendered =
+      Format.GitHubFlavoredMarkdown.render(Summary(Metrics(10, 5, 0, 0, 0), thresholds, thresholds, noMinimum))
+    rendered should include("\\textemdash")
+    rendered should include("\\color{#ff0}50.00")
+  }
 }
