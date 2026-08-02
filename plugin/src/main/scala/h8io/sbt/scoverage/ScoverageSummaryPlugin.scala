@@ -25,28 +25,28 @@ object ScoverageSummaryPlugin extends AutoPlugin {
     Seq(
       coverageSummary / aggregate := false,
       coverageSummaryFormat := Set(Format.GitHubFlavoredMarkdown),
-      coverageSummaryStmtLowThreshold := 50,
-      coverageSummaryStmtHighThreshold := 75,
-      coverageSummaryBranchLowThreshold := 50,
-      coverageSummaryBranchHighThreshold := 75,
       coverageSummaryLayout := Layout.Auto,
       coverageSummary := {
-        val statements = Thresholds(coverageSummaryStmtLowThreshold.value, coverageSummaryStmtHighThreshold.value)
-        val branches = Thresholds(coverageSummaryBranchLowThreshold.value, coverageSummaryBranchHighThreshold.value)
-        val errors = validateThresholds("Stmt", statements).toSeq ++ validateThresholds("Branch", branches)
-        if (errors.nonEmpty) throw new MessageOnlyException(errors.mkString("\n"))
         val projects = ScoverageProjectSummaryPlugin.summary
           .all(ScopeFilter(inAggregates(ThisProject, includeRoot = true)))
           .value
           .flatten
+        val scope = thisProjectRef.value.project
+        // The total row is judged by the thresholds of the aggregating project, which are not necessarily those of any
+        // single module.
+        val statements = Thresholds(coverageSummaryStmtLowThreshold.value, coverageSummaryStmtHighThreshold.value)
+        val branches = Thresholds(coverageSummaryBranchLowThreshold.value, coverageSummaryBranchHighThreshold.value)
         total(projects) match {
-          case Some(total) =>
+          case Some(metrics) =>
+            val total = Summary(metrics, statements, branches)
+            val errors = validate(projects, scope, total)
+            if (errors.nonEmpty) throw new MessageOnlyException(errors.mkString("\n"))
             for {
               format <- coverageSummaryFormat.value
-              render = format.render(coverageSummaryLayout.value, statements, branches)(_, _)
+              render = format.render(coverageSummaryLayout.value)(_, _)
               filename = crossTarget.value / "scoverage-summary" / format.filename
               summary =
-                "## " + name.value + " (" + thisProjectRef.value.project + ")\n### Scala " + scalaBinaryVersion.value +
+                "## " + name.value + " (" + scope + ")\n### Scala " + scalaBinaryVersion.value +
                   (if (sbtPlugin.value) ", SBT " + (pluginCrossBuild / sbtBinaryVersion).value else "") + "\n" +
                   render(projects.sortBy(_.name), total) + "\n\n"
             } {
@@ -64,7 +64,18 @@ object ScoverageSummaryPlugin extends AutoPlugin {
 
   // Visible for testing
   private[scoverage] def total(projects: Seq[ProjectSummary]): Option[Metrics] =
-    projects.iterator.map(_.metrics).reduceOption(_ + _)
+    projects.iterator.map(_.summary.metrics).reduceOption(_ + _)
+
+  // Visible for testing
+  // Every module resolves its own thresholds, so all of them are validated and every violation is reported at once.
+  // `totalScope` labels the thresholds of the aggregating project; when that project is aggregated into the report as
+  // well, the two labels coincide and the duplicate message collapses.
+  private[scoverage] def validate(projects: Seq[ProjectSummary], totalScope: String, total: Summary): Seq[String] =
+    ((projects.map(project => project.id -> project.summary) :+ (totalScope -> total)) flatMap {
+      case (scope, summary) =>
+        (validateThresholds("Stmt", summary.statements).toSeq ++ validateThresholds("Branch", summary.branches))
+          .map(message => s"[$scope] $message")
+    }).distinct
 
   // Visible for testing
   // Coverage rates are always within [0, 100], so a threshold outside that range makes a color unreachable,
