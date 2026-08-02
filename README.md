@@ -63,6 +63,42 @@ is therefore not derivable from the colors of the rows above it: modules that ar
 all green can still add up to a yellow total, since the total is a different
 number measured against a different pair of thresholds.
 
+### Failing on insufficient coverage
+
+* coverageSummaryStmtMinimum, coverageSummaryBranchMinimum - type is Option[Float],
+  the coverage rate below which `coverageSummaryCheck` fails. `None`, the default,
+  means the low threshold of the same metric in the same module, so that everything
+  which fails the check is also rendered in red.
+
+`coverageSummaryCheck` generates the report exactly as `coverageSummary` does and
+only then fails, so the report reaches its destination either way. It is a separate
+task, so adding it to a build is an explicit decision and nothing starts failing on
+an upgrade.
+
+```sbt
+// core has to stay well covered
+lazy val core = project.settings(coverageSummaryStmtMinimum := Some(90))
+
+// examples are not expected to be covered at all
+lazy val examples = project.settings(
+  coverageSummaryStmtMinimum := Some(0),
+  coverageSummaryBranchMinimum := Some(0)
+)
+```
+
+Minimums are resolved per module exactly like thresholds, and are checked with a
+strict comparison: a rate equal to the minimum passes, and `Some(100)` is therefore
+reachable by fully covered code. A metric with nothing to cover has no rate and
+never fails, the same reason its cell is rendered as a dash.
+
+Every module and every metric is checked, and all violations are reported at once.
+The total is checked too, and it is not implied by the modules: a module exempted
+with a minimum of its own can drag the total below the minimum of the aggregating
+project while every module still passes.
+
+A minimum above the low threshold of its metric is allowed but produces a warning,
+because the offending cell is then rendered in yellow or green while the build fails.
+
 ## Usage
 
 ### plugins.sbt

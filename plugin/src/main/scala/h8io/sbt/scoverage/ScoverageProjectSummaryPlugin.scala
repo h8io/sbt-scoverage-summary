@@ -26,25 +26,34 @@ object ScoverageProjectSummaryPlugin extends AutoPlugin {
       coverageSummaryStmtLowThreshold := 50,
       coverageSummaryStmtHighThreshold := 75,
       coverageSummaryBranchLowThreshold := 50,
-      coverageSummaryBranchHighThreshold := 75
+      coverageSummaryBranchHighThreshold := 75,
+      coverageSummaryStmtMinimum := None,
+      coverageSummaryBranchMinimum := None
     )
+
+  // A minimum left undefined follows the low threshold of its own metric. That fallback cannot be expressed as a
+  // setting default: defined globally it would resolve the threshold globally too and miss per-module overrides, and
+  // `Def.derive` would place it in the project scope, where it outranks and thereby masks `ThisBuild / ...`. Resolving
+  // it here instead keeps both, because every module evaluates this in its own scope.
+  private[scoverage] lazy val summarize: Def.Initialize[Metrics => Summary] = Def.setting {
+    val statements = Thresholds(coverageSummaryStmtLowThreshold.value, coverageSummaryStmtHighThreshold.value)
+    val branches = Thresholds(coverageSummaryBranchLowThreshold.value, coverageSummaryBranchHighThreshold.value)
+    val minimum = Minimum(
+      coverageSummaryStmtMinimum.value getOrElse statements.low,
+      coverageSummaryBranchMinimum.value getOrElse branches.low
+    )
+    metrics => Summary(metrics, statements, branches, minimum)
+  }
 
   override def projectSettings: Seq[Def.Setting[?]] =
     Seq(
       summary := {
         val dataDir = crossTarget.value / Constants.DataDir
+        val toSummary = summarize.value
         if (dataDir.exists()) {
           val coverage = Serializer.deserialize(Serializer.coverageFile(dataDir), baseDirectory.value)
           coverage(IOUtils.invoked(IOUtils.findMeasurementFiles(dataDir).toIndexedSeq))
-          Some(
-            ProjectSummary(
-              thisProjectRef.value,
-              name.value,
-              coverage,
-              Thresholds(coverageSummaryStmtLowThreshold.value, coverageSummaryStmtHighThreshold.value),
-              Thresholds(coverageSummaryBranchLowThreshold.value, coverageSummaryBranchHighThreshold.value)
-            )
-          )
+          Some(ProjectSummary(thisProjectRef.value, name.value, toSummary(Metrics(coverage))))
         } else None
       }
     )

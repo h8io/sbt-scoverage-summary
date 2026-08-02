@@ -4,4 +4,4 @@ package h8io.sbt.scoverage
   * than being passed to a format separately, because every module resolves its own values and a table may therefore mix
   * several sets of them.
   */
-final case class Summary(metrics: Metrics, statements: Thresholds, branches: Thresholds)
+final case class Summary(metrics: Metrics, statements: Thresholds, branches: Thresholds, minimum: Minimum)
