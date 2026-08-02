@@ -27,6 +27,9 @@ object ScoverageSummaryPlugin extends AutoPlugin {
       coverageSummaryHighThreshold := 75,
       coverageSummaryLayout := Layout.Auto,
       coverageSummary := {
+        val lowThreshold = coverageSummaryLowThreshold.value
+        val highThreshold = coverageSummaryHighThreshold.value
+        validateThresholds(lowThreshold, highThreshold) foreach (message => throw new MessageOnlyException(message))
         val projects = ScoverageProjectSummaryPlugin.summary
           .all(ScopeFilter(inAggregates(ThisProject, includeRoot = true)))
           .value
@@ -35,11 +38,7 @@ object ScoverageSummaryPlugin extends AutoPlugin {
           case Some(total) =>
             for {
               format <- coverageSummaryFormat.value
-              render = format.render(
-                coverageSummaryLayout.value,
-                coverageSummaryLowThreshold.value,
-                coverageSummaryHighThreshold.value
-              )(_, _)
+              render = format.render(coverageSummaryLayout.value, lowThreshold, highThreshold)(_, _)
               filename = crossTarget.value / "scoverage-summary" / format.filename
               summary =
                 "## " + name.value + " (" + thisProjectRef.value.project + ")\n### Scala " + scalaBinaryVersion.value +
@@ -61,4 +60,16 @@ object ScoverageSummaryPlugin extends AutoPlugin {
   // Visible for testing
   private[scoverage] def total(projects: Seq[ProjectSummary]): Option[Metrics] =
     projects.iterator.map(_.metrics).reduceOption(_ + _)
+
+  // Visible for testing
+  // Coverage rates are always within [0, 100], so a threshold outside that range makes a color unreachable,
+  // and a low threshold above the high one leaves no room for the intermediate color at all.
+  // Equal thresholds are allowed: they define a two-color scale without an intermediate band.
+  private[scoverage] def validateThresholds(lowThreshold: Float, highThreshold: Float): Option[String] =
+    if (0 <= lowThreshold && lowThreshold <= highThreshold && highThreshold <= 100) None
+    else
+      Some(
+        s"Inconsistent thresholds: coverageSummaryLowThreshold ($lowThreshold) and " +
+          s"coverageSummaryHighThreshold ($highThreshold) must satisfy 0 <= low <= high <= 100"
+      )
 }

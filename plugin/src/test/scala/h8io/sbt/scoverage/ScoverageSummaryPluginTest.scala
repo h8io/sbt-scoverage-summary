@@ -16,4 +16,32 @@ class ScoverageSummaryPluginTest extends AnyFlatSpec with Matchers {
         Nil
     ) shouldBe Some(Metrics(19, 14, 9, 27, 22))
   }
+
+  "validateThresholds" should "accept a low threshold below the high one" in {
+    ScoverageSummaryPlugin.validateThresholds(50, 75) shouldBe None
+  }
+
+  it should "accept equal thresholds as a two-color scale" in {
+    ScoverageSummaryPlugin.validateThresholds(60, 60) shouldBe None
+  }
+
+  it should "accept the whole range of possible coverage rates" in {
+    ScoverageSummaryPlugin.validateThresholds(0, 100) shouldBe None
+  }
+
+  it should "reject a low threshold above the high one" in {
+    ScoverageSummaryPlugin.validateThresholds(75, 50) should not be empty
+  }
+
+  it should "reject a negative low threshold" in {
+    ScoverageSummaryPlugin.validateThresholds(-1, 75) should not be empty
+  }
+
+  it should "reject a high threshold above the maximal coverage rate" in {
+    ScoverageSummaryPlugin.validateThresholds(50, 101) should not be empty
+  }
+
+  it should "reject a threshold which is not a number" in {
+    ScoverageSummaryPlugin.validateThresholds(Float.NaN, 75) should not be empty
+  }
 }
