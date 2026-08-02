@@ -34,6 +34,35 @@ This project uses it itself, and could be used as a reference for usage
   otherwise `coverageSummary` fails. Equal thresholds are allowed
   and produce a two-color scale with no intermediate color.
 
+### Per-module thresholds
+
+Thresholds are resolved separately for every module, so each row of the report
+can be judged by its own values. There is nothing to enable: this is the regular
+SBT `project -> ThisBuild -> Global` delegation, and the defaults above live in
+the global scope.
+
+```sbt
+// applies to every module which does not say otherwise
+ThisBuild / coverageSummaryStmtLowThreshold := 60
+
+// this one is held to a higher standard
+lazy val core = project.settings(coverageSummaryStmtLowThreshold := 90)
+
+// and this one is not expected to be covered at all
+lazy val examples = project.settings(coverageSummaryStmtLowThreshold := 0)
+```
+
+The keys can be scoped to any module, including modules where
+`ScoverageSummaryPlugin` itself is not enabled.
+
+Every module is validated, and a report which is inconsistent in several modules
+lists all of them at once, each prefixed with the module id.
+
+The total row is judged by the thresholds of the aggregating project. Its color
+is therefore not derivable from the colors of the rows above it: modules that are
+all green can still add up to a yellow total, since the total is a different
+number measured against a different pair of thresholds.
+
 ## Usage
 
 ### plugins.sbt
