@@ -5,10 +5,11 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 class FormatTest extends AnyFlatSpec with Matchers with MockFactory {
+  private val noMinimum = Minimum(0, 0)
   private val statements = Thresholds(0.3f, 0.8f)
   private val branches = Thresholds(0.1f, 0.5f)
 
-  private def summary(metrics: Metrics) = Summary(metrics, statements, branches)
+  private def summary(metrics: Metrics) = Summary(metrics, statements, branches, noMinimum)
 
   private val project = ProjectSummary("root", "single", summary(Metrics(12, 7, 1, 10, 5)))
   private val projects = Seq(
@@ -60,7 +61,7 @@ class FormatTest extends AnyFlatSpec with Matchers with MockFactory {
   }
 
   s"${Format.GitHubFlavoredMarkdown.name}" should "color statements and branches by their own thresholds" in {
-    val equalRates = Summary(Metrics(10, 5, 0, 10, 5), Thresholds(60, 80), Thresholds(20, 40))
+    val equalRates = Summary(Metrics(10, 5, 0, 10, 5), Thresholds(60, 80), Thresholds(20, 40), noMinimum)
     val rendered = Format.GitHubFlavoredMarkdown.render(equalRates)
     rendered should include("\\color{#f00}50.00")
     rendered should include("\\color{#0f0}50.00")
@@ -68,10 +69,11 @@ class FormatTest extends AnyFlatSpec with Matchers with MockFactory {
 
   it should "color every project by its own thresholds" in {
     val metrics = Metrics(10, 5, 0, 10, 5)
-    val strict = ProjectSummary("strict", "strict", Summary(metrics, Thresholds(60, 80), Thresholds(60, 80)))
-    val lenient = ProjectSummary("lenient", "lenient", Summary(metrics, Thresholds(20, 40), Thresholds(20, 40)))
+    val strict = ProjectSummary("strict", "strict", Summary(metrics, Thresholds(60, 80), Thresholds(60, 80), noMinimum))
+    val lenient =
+      ProjectSummary("lenient", "lenient", Summary(metrics, Thresholds(20, 40), Thresholds(20, 40), noMinimum))
     val rendered = Format.GitHubFlavoredMarkdown
-      .render(Seq(strict, lenient), Summary(metrics + metrics, Thresholds(40, 60), Thresholds(40, 60)))
+      .render(Seq(strict, lenient), Summary(metrics + metrics, Thresholds(40, 60), Thresholds(40, 60), noMinimum))
     rendered should include("\\color{#f00}50.00")
     rendered should include("\\color{#0f0}50.00")
     rendered should include("\\color{#ff0}50.00")
