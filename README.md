@@ -21,7 +21,7 @@ This project uses it itself, and could be used as a reference for usage
     * Multi - always show multimodule project layout.
     * Total - show only total summary value.
 * coverageSummaryLowThreshold - type is Float, this value is used
-  to color in red when coverage rate is lesser or equal than this value.
+  to color in red when coverage rate is lesser than this value.
 * coverageSummaryHighThreshold - type is Float, this value is used
   to color in green when coverage rate is greater or equal than this value.
 

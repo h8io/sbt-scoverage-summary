@@ -105,7 +105,7 @@ object Format {
       else {
         val rate = invoked.toFloat / total * 100
         val color =
-          if (rate <= lowThreshold) "#f00"
+          if (rate < lowThreshold) "#f00"
           else if (rate < highThreshold) "#ff0"
           else "#0f0"
         f"$$\\color{$color}$rate%2.02f\\%%$$"
