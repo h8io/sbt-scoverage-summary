@@ -23,6 +23,10 @@ sbt +publishLocal          # both rows to ~/.ivy2/local
 Project ids come from `sbt-projectmatrix`: `plugin` and `plugin2_12`, aggregated by `sbt-scoverage-summary-root`.
 `cleanFull` in `test.sh` is sbt 2.0-only and has no sbt 1.x equivalent.
 
+sbt 2.0 caches test results and delegates `test` to `testQuick`, so a re-run with no source changes prints
+`No tests to run for ... / testQuick` and `Passed: Total 0` — that is a cache hit, not a missing test setup, and
+plain `clean` does not invalidate it. Use `testOnly` to force an actual run.
+
 ## Architecture
 
 ### Two plugins, split by trigger
