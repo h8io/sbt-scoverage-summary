@@ -2,4 +2,4 @@
 
 set -euxo pipefail
 
-sbt "+clean; +compile; ci-release"
+sbt "cleanFull; +compile; ci-release"
