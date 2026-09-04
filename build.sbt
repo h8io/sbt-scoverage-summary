@@ -7,7 +7,7 @@ ThisBuild / coverageSummaryBranchLowThreshold := 90
 ThisBuild / coverageSummaryBranchHighThreshold := 95
 
 val plugin = projectMatrix.in(file("plugin"))
-  .jvmPlatform(scalaVersions = Seq("3.8.4", "2.12.21"))
+  .jvmPlatform(scalaVersions = Seq("3.9.0", "2.12.21"))
   .enablePlugins(SbtPlugin, ScoverageSummaryPlugin)
   .settings(
     name := "sbt-scoverage-summary",
