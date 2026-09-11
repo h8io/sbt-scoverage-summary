@@ -59,7 +59,7 @@ val plugin = projectMatrix.in(file("plugin"))
     ),
     libraryDependencies ++=
       (scalaBinaryVersion.value match {
-        case "3" => Seq("org.scala-lang.modules" %% "scala-xml" % "2.4.0")
+        case "3" => Seq("org.scala-lang.modules" %% "scala-xml" % "2.5.0")
         case _ => Nil
       })
   )
