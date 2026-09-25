@@ -55,7 +55,7 @@ val plugin = projectMatrix.in(file("plugin"))
         scalaBinaryVersion.value
       ),
       "org.scalatest" %% "scalatest" % "3.2.20" % Test,
-      "org.scalamock" %% "scalamock" % "7.6.0" % Test
+      "org.scalamock" %% "scalamock-scalatest" % "7.6.0" % Test
     ),
     libraryDependencies ++=
       (scalaBinaryVersion.value match {
