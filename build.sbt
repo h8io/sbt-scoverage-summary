@@ -34,12 +34,23 @@ val plugin = projectMatrix.in(file("plugin"))
       )
     ),
     sbtPluginPublishLegacyMavenStyle := false,
+    // Scala 3.9 emits TASTy that the Scala 3.8 under every sbt 2.0.x cannot read, so the sbt 2 row has to be built,
+    // and tested, against an sbt that runs on 3.9 itself; 2.1.0-RC1 is the first candidate release that does.
     pluginCrossBuild / sbtVersion := {
       scalaBinaryVersion.value match {
         case "2.12" => "1.8.0"
-        case _ => "2.0.0"
+        case _ => "2.1.0-RC1"
       }
     },
+    scriptedLaunchOpts ++= Seq("-Xmx1024M", s"-Dplugin.version=${version.value}"),
+    scriptedBufferLog := false,
+    // sbt 1.8.0 brings Scala 2.12.17, which cannot read Java 21 class files and dies with "bad constant pool index"
+    // before the test build is even loaded; the plugin runs on any sbt 1.x, so a current one is used instead.
+    scriptedSbt :=
+      (scalaBinaryVersion.value match {
+        case "2.12" => "1.12.14"
+        case _ => (pluginCrossBuild / sbtVersion).value
+      }),
     scalacOptions ++=
       (scalaBinaryVersion.value match {
         case "2.12" =>

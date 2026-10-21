@@ -108,6 +108,9 @@ Add
 ```sbt
 addSbtPlugin("io.h8.sbt" % "sbt-scoverage-summary" % "x.x.x")
 ```
+
+Published for both sbt 1.x and sbt 2.x. On sbt 2 it needs 2.1.0-RC1 or later: the plugin is built with Scala 3.9,
+whose TASTy the Scala 3.8 that sbt 2.0.x runs on cannot read.
 [![GitHub release](https://img.shields.io/github/v/release/h8io/sbt-scoverage-summary)](https://github.com/h8io/sbt-scoverage-summary/releases/latest)
 
 ### build.sbt
