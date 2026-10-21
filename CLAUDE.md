@@ -12,12 +12,13 @@ primarily so `h8io/gha` can post it as a pull request comment. It is a sibling t
 ```bash
 ./test.sh                  # exactly what CI runs: scalafmt checks, cleanFull, cross-build coverage/test/summary/aggregate
 sbt +test                  # both cross-build rows
-sbt plugin/test            # Scala 3.8.4 row only
+sbt plugin/test            # Scala 3.9.0 row only
 sbt plugin2_12/test        # Scala 2.12.21 row only
 sbt "plugin/testOnly h8io.sbt.scoverage.FormatTest"
 sbt "plugin/testOnly h8io.sbt.scoverage.FormatTest -- -z \"substring of the test name\""
 sbt scalafmtAll scalafmtSbt   # format; scalafmtCheckAll / scalafmtSbtCheck to verify
 sbt +publishLocal          # both rows to ~/.ivy2/local
+sbt "coverageOff; +scripted"  # load the published plugin into a real build, both rows
 ```
 
 Project ids come from `sbt-projectmatrix`: `plugin` and `plugin2_12`, aggregated by `sbt-scoverage-summary-root`.
@@ -73,9 +74,14 @@ matches, and posts them. Changing the directory name or `Format.filename` breaks
 
 | Row | Scala | sbt (`pluginCrossBuild / sbtVersion`) |
 |---|---|---|
-| `plugin` | 3.8.4 | 2.0.0 |
+| `plugin` | 3.9.0 | 2.1.0-RC1 |
 | `plugin2_12` | 2.12.21 | 1.8.0 |
 
+- **The sbt 2 row cannot target sbt 2.0.x.** Scala 3.9 emits TASTy that the Scala 3.8 under every sbt 2.0.x cannot
+  read, so a build on 2.0.x that adds the plugin fails to load with `value autoImport is not a member of ...` and
+  `Forward incompatible TASTy file`. `+test` cannot see this; only the scripted test in
+  `plugin/src/sbt-test/scoverage-summary/check` does, by loading the published plugin into a real build on the sbt
+  each row targets. `test.sh` runs it in a second invocation with coverage off.
 - Both rows are warning-fatal (`-Werror` on 3, `-Xfatal-warnings -Xlint:_` on 2.12), and 2.12 compiles with
   `-Xsource:3`, so write source that satisfies the Scala 3 dialect.
 - `scala-xml` is an explicit dependency for Scala 3 only — sbt 1.x already ships it.

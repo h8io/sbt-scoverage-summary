@@ -1,0 +1,14 @@
+# The build loads at all only if the sbt running it can read the plugin's classes: the sbt 2 row is built with a
+# Scala whose TASTy an older sbt rejects, and then build.sbt fails to compile before any of this runs.
+> coverage
+> test
+
+# Half the statements are covered against a bar of 90%, so the check fails...
+-> coverageSummaryCheck
+
+# ...but only once the report is on disk
+> checkReport
+
+# With the bar lowered the same data passes
+> set ThisBuild / coverageSummaryStmtLowThreshold := 10
+> coverageSummaryCheck
