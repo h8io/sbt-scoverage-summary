@@ -13,10 +13,10 @@ val plugin = projectMatrix.in(file("plugin"))
     name := "sbt-scoverage-summary",
     organization := "io.h8.sbt",
     organizationName := "H8IO",
-    organizationHomepage := Some(url("https://github.com/h8io/")),
+    organizationHomepage := Some(uri("https://github.com/h8io/")),
     description := "SBT scoverage summary",
-    licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
-    homepage := Some(url("https://github.com/h8io/sbt-scoverage-summary")),
+    licenses := List("Apache-2.0" -> uri("http://www.apache.org/licenses/LICENSE-2.0.txt")),
+    homepage := Some(uri("https://github.com/h8io/sbt-scoverage-summary")),
     versionScheme := Some("semver-spec"),
     javacOptions ++= Seq("--release", "11"),
     developers := List(
@@ -24,12 +24,12 @@ val plugin = projectMatrix.in(file("plugin"))
         id = "eshu",
         name = "Pavel",
         email = "tjano.xibalba@gmail.com",
-        url = url("https://github.com/h8io/")
+        url = uri("https://github.com/h8io/")
       )
     ),
     scmInfo := Some(
       ScmInfo(
-        url("https://github.com/h8io/sbt-scoverage-summary"),
+        uri("https://github.com/h8io/sbt-scoverage-summary"),
         "scm:git@github.com:h8io/sbt-scoverage-summary.git"
       )
     ),
@@ -39,7 +39,7 @@ val plugin = projectMatrix.in(file("plugin"))
     pluginCrossBuild / sbtVersion := {
       scalaBinaryVersion.value match {
         case "2.12" => "1.8.0"
-        case _ => "2.1.0-RC1"
+        case _ => "2.1.0"
       }
     },
     scriptedLaunchOpts ++= Seq("-Xmx1024M", s"-Dplugin.version=${version.value}"),

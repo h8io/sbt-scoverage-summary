@@ -74,7 +74,7 @@ matches, and posts them. Changing the directory name or `Format.filename` breaks
 
 | Row | Scala | sbt (`pluginCrossBuild / sbtVersion`) |
 |---|---|---|
-| `plugin` | 3.9.0 | 2.1.0-RC1 |
+| `plugin` | 3.9.0 | 2.1.0 |
 | `plugin2_12` | 2.12.21 | 1.8.0 |
 
 - **The sbt 2 row cannot target sbt 2.0.x.** Scala 3.9 emits TASTy that the Scala 3.8 under every sbt 2.0.x cannot
