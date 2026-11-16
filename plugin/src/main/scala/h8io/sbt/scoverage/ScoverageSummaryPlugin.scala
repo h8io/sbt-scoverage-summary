@@ -93,11 +93,12 @@ object ScoverageSummaryPlugin extends AutoPlugin {
   // The total is checked as well as the modules. It is not implied by them: the total rate is a weighted mean of the
   // module rates, so modules passing a shared minimum would guarantee it, but a module exempted with a minimum of its
   // own can drag the total below the minimum of the aggregating project while every module still passes.
+  // As in `validate`, an aggregating project aggregated into itself yields the same message twice, which collapses.
   private[scoverage] def violations(projects: Seq[ProjectSummary], totalScope: String, total: Summary): Seq[String] =
-    scopes(projects, totalScope, total) flatMap { case (scope, summary) =>
+    (scopes(projects, totalScope, total) flatMap { case (scope, summary) =>
       violation(scope, "Statement", summary.metrics.statementRate, summary.minimum.statements).toSeq ++
         violation(scope, "Branch", summary.metrics.branchRate, summary.minimum.branches)
-    }
+    }).distinct
 
   // A metric with nothing to cover has no rate and cannot fail; the report renders it as a dash for the same reason.
   private def violation(scope: String, metric: String, rate: Option[Float], minimum: Float): Option[String] =

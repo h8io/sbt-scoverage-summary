@@ -150,6 +150,12 @@ class ScoverageSummaryPluginTest extends AnyFlatSpec with Matchers with OptionVa
     all(failures) should include("[root]")
   }
 
+  it should "not report the aggregating project twice when it is aggregated into itself" in {
+    val root = half("root", Minimum(90, 0))
+    val projects = Seq(root)
+    ScoverageSummaryPlugin.violations(projects, "root", totalOf(projects, Minimum(90, 0))) should have size 1
+  }
+
   "incoherent" should "stay silent when the minimum is not above the low threshold" in {
     ScoverageSummaryPlugin.incoherent(Seq(half("a", Minimum(50, 50)), half("b", Minimum(0, 0)))) shouldBe empty
   }
